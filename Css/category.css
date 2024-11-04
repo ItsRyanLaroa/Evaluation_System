@@ -1,0 +1,116 @@
+* {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+body {
+  background-position: co;
+  background: bisque;
+}
+.container {
+  background-color: white;
+  border-radius: 5px;
+  position: relative;
+}
+
+.container .buttonContainer {
+  height: 15%;
+}
+
+.container .buttonContainer button {
+  width: 25%;
+  height: 100%;
+  float: left;
+  cursor: pointer;
+  padding: 10px;
+  font-size: 18px;
+}
+
+.container .buttonContainer button:hover {
+  background-color: red;
+}
+
+.container .buttonContainer button.active,
+.container .buttonContainer button:hover {
+  background-color: red;
+}
+
+.container .tabPanel {
+  height: 300px;
+  background-color: white;
+  text-align: center;
+  padding-top: 30px;
+  box-sizing: border-box;
+  font-size: 22px;
+  display: none;
+}
+
+.buttonContainer {
+  justify-content: space-around;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.buttonContainer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -20px;
+  width: 0;
+  height: 0;
+  border-left: 20px solid #f7f7f7;
+  border-top: 15px solid transparent;
+  border-bottom: 15px solid transparent;
+}
+
+.buttonContainer button {
+  width: 10%;
+  height: 30px;
+  cursor: pointer;
+  padding: 10px;
+  font-size: 18px;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.buttonContainer button:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+.buttonContainer button.active {
+  background-color: #0056b3;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.tabPanel {
+  height: 300px;
+  background-color: white;
+  text-align: center;
+  padding-top: 105px;
+  font-size: 22px;
+  display: none;
+  position: relative;
+}
+
+.nextButton {
+  position: absolute;
+  right: 80px;
+  bottom: -60px;
+  padding: 10px 20px;
+  font-size: 18px;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.nextButton:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}

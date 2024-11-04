@@ -1,0 +1,297 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  pointer-events: none;
+}
+
+.container {
+  max-width: 1920px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-container {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  height: auto;
+  margin: 130px 100px 137px 100px;
+  position: relative;
+}
+
+.login-container::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -300px;
+  width: 800px;
+  height: 800px;
+  background-color: rgba(255, 0, 0, 0.7);
+  border-radius: 50%;
+  transform: translateY(-50%);
+  z-index: 0;
+}
+
+.login-container::after {
+  content: "";
+  position: absolute;
+  bottom: -350px;
+  right: -270px;
+  width: 400px;
+  height: 400px;
+  background-color: rgba(255, 0, 0, 0.7);
+  border-radius: 50%;
+  z-index: 0;
+}
+
+.login-box {
+  display: flex;
+  flex-wrap: nowrap;
+  width: 100%;
+  max-width: 1000px;
+  border: 1px solid black;
+  position: relative;
+  z-index: 1;
+}
+
+.login-side {
+  flex: 1;
+  padding: 10px;
+}
+
+.register-side {
+  flex: 0.5;
+}
+
+.login-side {
+  background-color: rgba(255, 255, 255);
+  position: relative;
+}
+
+.register-side {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255);
+  position: relative;
+}
+
+.login-logo {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  position: relative;
+  padding: 10px;
+}
+
+.login-logo img {
+  width: 70px;
+  height: auto;
+  position: relative;
+}
+
+.login-logo a {
+  color: #333;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.logo-name {
+  text-align: center;
+}
+
+.logo-name h3 {
+  font-size: 24px;
+  font-weight: bold;
+  padding-top: 10px;
+}
+
+.account-login {
+  justify-content: center;
+  padding: 80px 0 30px 0;
+}
+
+.account-login h1 {
+  font-weight: bold;
+  text-align: center;
+  align-items: center;
+  font-size: 56px;
+}
+
+.card2 {
+  justify-content: center;
+}
+
+.input-group {
+  padding-bottom: 20px;
+}
+
+.input-group input {
+  border-radius: 50px;
+  background-color: rgba(128, 128, 128, 0.1);
+  padding: 30px;
+  font-weight: bold;
+}
+
+.input-group input:focus {
+  border: 1px solid rgba(255, 0, 0, 0.7);
+  outline: none;
+}
+
+.input-group input {
+  border-radius: 50px;
+  background-color: rgba(128, 128, 128, 0.1);
+  padding: 30px;
+  font-weight: bold;
+  transition: border-color 0.3s;
+}
+
+.btn {
+  color: white;
+  background-color: rgba(255, 0, 0, 0.7);
+  padding: 20px;
+  width: 100%;
+  max-width: 1000px;
+  border-radius: 50px;
+  margin: 30px 0 30px 0;
+  font-weight: bold;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+a {
+  color: rgba(255, 0, 0, 0.7);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+a:hover {
+  color: black;
+}
+
+.register-side {
+  position: relative;
+  background: url(../images/cubepattern.jpg);
+  background-position: left top;
+  background-repeat: repeat;
+  background-size: 1300px auto;
+  overflow: hidden;
+}
+
+.register-side::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: red;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.register-container {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  width: 100%;
+  height: auto;
+  justify-content: center;
+  padding: 15px;
+  margin-top: 70px;
+}
+
+.register-text {
+  padding-bottom: 15px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.register-text h1 {
+  color: white;
+  font-weight: bold;
+}
+
+.register-text p {
+  color: white;
+  font-weight: normal;
+}
+
+.register-text h1,
+p {
+  margin-bottom: 20px;
+}
+
+.row-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin: 30px;
+}
+
+.regBtn {
+  position: absolute;
+  align-items: center;
+  justify-content: center;
+  color: black;
+  background-color: white;
+  width: 270px;
+  padding: 15px;
+  border-radius: 50px;
+  font-weight: bold;
+  border: none;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.regBtn:hover {
+  color: red;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+}
+
+.login-container::before,
+.login-container::after {
+  animation: pulse 3s infinite;
+}
+
+@media (max-width: 1200px) {
+  .login-box {
+    flex-direction: column;
+  }
+
+  .login-side,
+  .register-side {
+    flex: 1 1 100%;
+    max-width: none;
+  }
+
+  .register-side {
+    padding-bottom: 30px;
+  }
+}
