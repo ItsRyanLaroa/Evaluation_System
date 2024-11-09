@@ -42,14 +42,23 @@ while ($row = $classes_and_subjects->fetch_assoc()) {
     $c_arr[$row['class_id']] = $row['class_name'];
     $s_arr[$row['subject_id']] = $row['subject_name'];
 }
+
+// Fetch all subjects for the teacher with academic year details
+$query_subjects = "
+    SELECT st.subject_id, 
+           sl.subject AS subject_name,
+           al.year AS academic_year
+    FROM subject_teacher st
+    JOIN subject_list sl ON st.subject_id = sl.id
+    JOIN academic_list al ON st.academic_year = al.id
+    WHERE st.faculty_id = ?
+";
+$stmt_subjects = $conn->prepare($query_subjects);
+$stmt_subjects->bind_param("i", $faculty_id);
+$stmt_subjects->execute();
+$all_subjects = $stmt_subjects->get_result();
 ?>
 
-<style>
-    .card-tools i{
-    color: #dc143c;
-    font-weight: bold;
-}
-</style>
 <div class="container-fluid">
     <div class="col-lg-12">
         <div class="card-header">
@@ -60,6 +69,7 @@ while ($row = $classes_and_subjects->fetch_assoc()) {
             </div>
         </div>
         <div class="card-body">
+      
             <table class="table tabe-hover table-bordered styled-table" id="r-list">
                 <thead>
                     <tr>
@@ -90,7 +100,6 @@ while ($row = $classes_and_subjects->fetch_assoc()) {
                         </td>
                         <td class="text-center">
                             <div class="btn-group">
-                               
                                 <button type="button" class="btn btn-danger btn-flat delete_class" data-id="<?php echo $row['id']; ?>">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -105,6 +114,8 @@ while ($row = $classes_and_subjects->fetch_assoc()) {
                     ?>
                 </tbody>
             </table>
+
+   
         </div>
     </div>
 </div>
@@ -113,14 +124,8 @@ while ($row = $classes_and_subjects->fetch_assoc()) {
 $(document).ready(function(){
     $('#r-list').dataTable();
     
-    // Handle the "Add New" button click
     $('.new_subject').click(function(){
         uni_modal("", "<?php echo $_SESSION['login_view_folder']; ?>manage_subject.php?faculty_id=<?php echo $faculty_id; ?>&academic_id=<?php echo $academic_id; ?>");
-    });
-
-    $('.edit_class').click(function(){
-        let id = $(this).attr('data-id');
-        uni_modal("Edit Class", "<?php echo $_SESSION['login_view_folder']; ?>manage_subject.php?id=" + id);
     });
 
     $('.delete_class').click(function(){
@@ -150,56 +155,10 @@ function delete_subject_restriction(id){
 </script>
 
 <style>
-/* Table styling */
-table.table-bordered.dataTable tbody th, table.table-bordered.dataTable tbody td {
-    border-bottom-width: 0;
-    border: none;
-    color: #333;
-    font-weight: 500;
+
+.card-tools i{
+	color: #dc143c;
+	font-weight: bold;
 }
 
-.styled-table tbody tr {
-    border-bottom: 1px solid #dddddd;
-}
-
-.styled-table tbody tr:nth-of-type(even) {
-    background-color: #f3f3f3;
-}
-
-.styled-table tbody tr:last-of-type {
-    border-bottom: 2px solid #009879;
-}
-
-thead th {
-    background-color: #dc143c;
-    color: #f3f3f3;
-    font-weight: bold;
-}
-
-/* Button styles */
-.btn-primary {
-    color: blue;
-    background-color: transparent;
-    border: none;
-}
-
-.btn-danger {
-    color: red;
-    background-color: transparent;
-    border: none;
-}
-
-.card-header {
-    background-color: transparent;
-    border-bottom: none;
-    padding: .75rem 1.25rem;
-    position: relative;
-    border-top-left-radius: .25rem;
-    border-top-right-radius: .25rem;
-}
-
-/* Hover effect for rows */
-tbody tr:hover {
-    background-color: #f1f1f1;
-}
 </style>

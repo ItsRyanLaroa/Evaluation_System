@@ -112,6 +112,12 @@ if($action == 'delete_question'){
 	if($save)
 		echo $save;
 }
+if($action == 'delete_subject_teacher'){
+    $delete = $crud->delete_subject_teacher();
+    echo $delete ? 1 : 0;
+}
+
+
 if($action == 'save_criteria_question'){
 	$save = $crud->save_criteria_question();
 	if($save)
@@ -179,7 +185,10 @@ if ($action == 'save_class') {
     $save = $crud->save_class();
     echo $save;
 }
-
+if ($action == 'save_subject_teacher') {
+    $save = $crud->save_subject_teacher();
+    echo $save;
+}
 
 if($action == 'get_report'){
 	$get = $crud->get_report();
@@ -217,11 +226,7 @@ if($action == 'save_staff'){
 }
 
 // Delete staff action
-if($action == 'delete_staff'){
-	$delete = $crud->delete_staff();
-	if($delete)
-		echo $delete;
-}
+
 
 
 

@@ -7,10 +7,10 @@
   <link rel="stylesheet" href="path/to/your/styles.css">
   <style>
     .main-sidebar {
-      background-color: #dc143c ;
+      background-color: #9b0a1e ;
     }
     .layout-navbar-fixed .wrapper .sidebar-dark-primary .brand-link:not([class*=navbar]) {
-      background-color: #dc143c ;
+      background-color: #9b0a1e ;
     }
     .sidebar-dark-primary .nav-sidebar>.nav-item>.nav-link.active, 
     .sidebar-light-primary .nav-sidebar>.nav-item>.nav-link.active {

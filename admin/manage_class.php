@@ -66,26 +66,7 @@ $code = isset($code) ? $code : substr(str_shuffle("0123456789abcdefghijklmnopqrs
         </div>
 
 
-       <!-- Subject checkbox list -->
-            <div class="form-group">
-                <label class="control-label">Subject</label>
-                <div id="subject_list">
-                    <?php
-                    $subject = $conn->query("SELECT * FROM subject_list ORDER BY subject ASC");
-                    $selected_subjects = isset($subject_id) ? explode(',', $subject_id) : []; // Split selected subjects if any
-                    while($row = $subject->fetch_assoc()):
-                    ?>
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" name="subject_id[]" 
-                                value="<?php echo $row['id']; ?>" 
-                                <?php echo in_array($row['id'], $selected_subjects) ? 'checked' : ''; ?>>
-                            <label class="form-check-label">
-                                <?php echo $row['subject']; ?>
-                            </label>
-                        </div>
-                    <?php endwhile; ?>
-                </div>
-            </div>
+     
 
             <script>
 $(document).ready(function(){

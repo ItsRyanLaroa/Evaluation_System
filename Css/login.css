@@ -2,11 +2,11 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
 }
 
 body::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -33,7 +33,7 @@ body::before {
 }
 
 .login-container::before {
-  content: "";
+  content: '';
   position: absolute;
   top: -50%;
   left: -300px;
@@ -46,7 +46,7 @@ body::before {
 }
 
 .login-container::after {
-  content: "";
+  content: '';
   position: absolute;
   bottom: -350px;
   right: -270px;
@@ -191,7 +191,7 @@ a:hover {
 }
 
 .register-side::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;

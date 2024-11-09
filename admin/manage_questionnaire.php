@@ -134,7 +134,7 @@ function ordinal_suffix($num){
 						<input type="hidden" name="academic_id" value="<?php echo isset($id) ? $id : '' ?>">
 						<input type="hidden" name="id" value="">
 						<div class="form-group">
-							<label for="">Criteria</label>
+							<label for="">Category</label>
 							<select name="criteria_id" id="criteria_id" class="custom-select custom-select-sm select2">
 								<option value=""></option>
 							<?php 

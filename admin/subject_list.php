@@ -97,6 +97,7 @@ tbody tr:hover {
                         <th>Subject</th>
                         <th>Description</th>
                         <th>Action</th>
+                        
                     </tr>
                 </thead>
                 <tbody>
@@ -111,14 +112,16 @@ tbody tr:hover {
                         <td><b><?php echo $row['subject'] ?></b></td>
                         <td><b><?php echo $row['description'] ?></b></td>
                         <td class="text-center">
-                            <div class="btn-group">
-                                <a href="javascript:void(0)" data-id='<?php echo $row['id'] ?>' class="btn btn-primary btn-flat manage_subject">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button type="button" class="btn btn-danger btn-flat delete_subject" data-id="<?php echo $row['id'] ?>">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
+                        <div class="btn-group">
+                                    <a href="javascript:void(0)" data-id='<?php echo $row['id'] ?>' class="btn btn-primary btn-flat manage_subject">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-danger btn-flat delete_subject" data-id="<?php echo $row['id'] ?>">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    <a class="dropdown-item class_student manage-subject-btn" href="index.php?page=subject_teacher&id=<?php echo $row['id'] ?>"><i class="fa fa-eye"></i></a>
+                                    </a>
+                                </div>
                         </td>
                     </tr>	
                     <?php endwhile; ?>

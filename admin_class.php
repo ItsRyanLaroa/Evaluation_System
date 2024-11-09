@@ -18,26 +18,29 @@ Class Action {
 // admin_class.php
 function login(){
     extract($_POST);
-    // Query for admin
-    $qry_admin = $this->db->query("SELECT *, concat(firstname,' ',lastname) as name FROM users WHERE email = '".$email."' AND password = '".md5($password)."'");
-    // Query for faculty
-    $qry_faculty = $this->db->query("SELECT *, concat(firstname,' ',lastname) as name FROM faculty_list WHERE email = '".$email."' AND password = '".md5($password)."'");
-    // Query for student with status check
-    $qry_student = $this->db->query("SELECT *, concat(firstname,' ',lastname) as name FROM student_list WHERE email = '".$email."' AND password = '".md5($password)."' AND LOWER(status) = 'active'");
 
-    // Check for admin login
+    // Query for admin (using email as username)
+    $qry_admin = $this->db->query("SELECT *, concat(firstname,' ',lastname) as name FROM users WHERE email = '".$email."' AND password = '".md5($password)."'");
+
+    // Query for faculty (using school_id as username)
+    $qry_faculty = $this->db->query("SELECT *, concat(firstname,' ',lastname) as name FROM faculty_list WHERE email = '".$email."' AND password = '".md5($password)."'");
+
+    // Query for student (using school_id as username) and active status
+    $qry_student = $this->db->query("SELECT *, concat(firstname,' ',lastname) as name FROM student_list WHERE school_id = '".$email."' AND password = '".md5($password)."' AND LOWER(status) = 'active'");
+
+    // Check for admin login (still using email)
     if($qry_admin->num_rows > 0){
         $qry = $qry_admin;
         $login_type = 1; // Admin
         $view_folder = 'admin/';
     }
-    // Check for faculty login
+    // Check for faculty login (using school_id instead of email)
     elseif($qry_faculty->num_rows > 0){
         $qry = $qry_faculty;
         $login_type = 2; // Faculty
         $view_folder = 'faculty/';
     }
-    // Check for student login with active status
+    // Check for student login (using school_id instead of email)
     elseif($qry_student->num_rows > 0){
         $qry = $qry_student;
         $login_type = 3; // Student
@@ -280,6 +283,8 @@ function login(){
 	function save_subject(){
 		extract($_POST);
 		$data = "";
+	
+		// Loop through $_POST data to build query string
 		foreach($_POST as $k => $v){
 			if(!in_array($k, array('id','user_ids')) && !is_numeric($k)){
 				if(empty($data)){
@@ -289,20 +294,34 @@ function login(){
 				}
 			}
 		}
-		$chk = $this->db->query("SELECT * FROM subject_list where code = '$code' and id != '{$id}' ")->num_rows;
+	
+		// Check if code already exists (excluding the current record if updating)
+		$chk = $this->db->query("SELECT * FROM subject_list WHERE code = '$code' AND id != '{$id}'")->num_rows;
 		if($chk > 0){
-			return 2;
+			return 2; // Code already exists
 		}
+	
+		// Determine the next id if inserting a new record
 		if(empty($id)){
-			$save = $this->db->query("INSERT INTO subject_list set $data");
-		}else{
-			$save = $this->db->query("UPDATE subject_list set $data where id = $id");
+			$result = $this->db->query("SELECT IFNULL(MAX(id), 0) + 1 AS next_id FROM subject_list");
+			$next_id = $result->fetch_assoc()['next_id'];
+			
+			// Include the new `id` in the data string for insertion
+			$data = "id='$next_id', " . $data;
+			
+			// Insert new record with specified `next_id`
+			$save = $this->db->query("INSERT INTO subject_list SET $data");
+		} else {
+			// Update existing record
+			$save = $this->db->query("UPDATE subject_list SET $data WHERE id = $id");
 		}
+	
 		if($save){
-			return 1;
+			return 1; // Success
 		}
 	}
-	function delete_subject(){
+	
+		function delete_subject(){
 		extract($_POST);
 		$delete = $this->db->query("DELETE FROM subject_list where id = $id");
 		if($delete){
@@ -320,15 +339,26 @@ function login(){
 			}
 		}
 	
-		// Handle multiple teacher and subject IDs by converting them to comma-separated strings
+		// Handle multiple teacher IDs by converting them to a comma-separated string
 		if(isset($teacher_id) && is_array($teacher_id)){
-			$teacher_ids = implode(',', $teacher_id); // Convert array to comma-separated string
+			$teacher_ids = implode(',', $teacher_id);
 			$data .= ", teacher_id='$teacher_ids' ";
 		}
 	
-		if(isset($subject_id) && is_array($subject_id)){
-			$subject_ids = implode(',', $subject_id); // Convert array to comma-separated string
-			$data .= ", subject_id='$subject_ids' ";
+		// Automatically retrieve subjects linked to the provided teacher IDs
+		if(isset($teacher_id) && is_array($teacher_id)) {
+			$subject_ids = [];
+			foreach($teacher_id as $tid) {
+				// Fetch subjects for each teacher from the subject_teacher table
+				$subjects_query = $this->db->query("SELECT subject_id FROM subject_teacher WHERE faculty_id = $tid");
+				while ($row = $subjects_query->fetch_assoc()) {
+					$subject_ids[] = $row['subject_id'];
+				}
+			}
+			// Remove duplicate subject IDs and convert to comma-separated string
+			$subject_ids = array_unique($subject_ids);
+			$subject_ids_str = implode(',', $subject_ids);
+			$data .= ", subject_id='$subject_ids_str' ";
 		}
 	
 		// Generate a random class code for student enrollment if adding a new class
@@ -364,6 +394,60 @@ function login(){
 	}
 	
 	
+	function save_subject_teacher() {
+		extract($_POST);
+		$subject_id = intval($subject_id);
+		$academic_year = intval($academic_year);
+		$existing_teacher_found = false;
+	
+		// Validate that subject_id and academic_year are valid
+		if ($subject_id <= 0 || $academic_year <= 0) {
+			return 0; // Invalid data
+		}
+	
+		// Process each selected faculty (teacher) ID
+		if (isset($faculty_id) && is_array($faculty_id)) {
+			foreach ($faculty_id as $teacher_id) {
+				$teacher_id = intval($teacher_id);
+	
+				// Check if this teacher is already associated with this subject
+				$chk = $this->db->query("SELECT * FROM subject_teacher WHERE subject_id = $subject_id AND faculty_id = $teacher_id")->num_rows;
+				if ($chk > 0) {
+					$existing_teacher_found = true;
+					continue; // Skip if this faculty_id is already associated with this subject_id
+				}
+	
+				// Insert new association with subject, teacher, and academic year
+				$save = $this->db->query("INSERT INTO subject_teacher (subject_id, faculty_id, academic_year) VALUES ($subject_id, $teacher_id, $academic_year)");
+				if (!$save) {
+					return 0; // Return error if the insertion fails
+				}
+			}
+		}
+	
+		// Return 2 if a teacher already exists, otherwise return 1 for success
+		return $existing_teacher_found ? 2 : 1;
+	}
+	function delete_subject_teacher() { 
+		if (!isset($_POST['id'])) {
+			return 0;
+		}
+	
+		$id = $_POST['id'];
+		$stmt = $this->db->prepare("DELETE FROM subject_teacher WHERE id = ?");
+		
+		if ($stmt === false) {
+			return 0;
+		}
+	
+		$stmt->bind_param("i", $id);
+	
+		if ($stmt->execute()) {
+			return 1;  
+		} else {
+			return 0;
+		}
+	}
 	
 	function delete_class(){
 		extract($_POST);
@@ -741,30 +825,8 @@ function delete_subject_restriction() {
     }
 }
 
-	
-	
-	function save_staff_restriction(){
-		extract($_POST);
-		$filtered = implode(",",array_filter($rid));
-		if(!empty($filtered))
-			$this->db->query("DELETE FROM staff_restriction_list WHERE id NOT IN ($filtered) AND academic_id = $academic_id");
-		else
-			$this->db->query("DELETE FROM staff_restriction_list WHERE academic_id = $academic_id");
-		
-		foreach($rid as $k => $v){
-			$data = " academic_id = $academic_id ";
-			$data .= ", staff_id = {$staff_id[$k]} ";
-			$data .= ", class_id = {$class_id[$k]} ";
-			$data .= ", subject_id = {$subject_id[$k]} ";
-			if(empty($v)){
-				$save[] = $this->db->query("INSERT INTO staff_restriction_list SET $data");
-			}else{
-				$save[] = $this->db->query("UPDATE staff_restriction_list SET $data WHERE id = $v");
-			}
-		}
-		return 1;
-	}
-	
+
+
 	function save_evaluation() {
 		extract($_POST);
 		
@@ -817,29 +879,6 @@ function delete_subject_restriction() {
 	
 	
 	
-	
-	function save_staff_evaluation(){
-		extract($_POST);
-		$data = " student_id = {$_SESSION['login_id']} ";
-		$data .= ", academic_id = $academic_id ";
-		$data .= ", subject_id = $subject_id ";
-		$data .= ", class_id = $class_id ";
-		$data .= ", restriction_id = $restriction_id ";
-		$data .= ", staff_id = $staff_id ";
-		$save = $this->db->query("INSERT INTO staff_evaluation_list set $data");
-		if($save){
-			$eid = $this->db->insert_id;
-			foreach($qid as $k => $v){
-				$data = " evaluation_id = $eid ";
-				$data .= ", question_id = $v ";
-				$data .= ", rate = {$rate[$v]} ";
-				$ins[] = $this->db->query("INSERT INTO staff_evaluation_answers set $data ");
-			}
-			if(isset($ins))
-				return 1;
-		}
-	}
-	
 	function get_class(){
 		extract($_POST);
 		$data = array();
@@ -855,7 +894,10 @@ function delete_subject_restriction() {
 	function view_report() {
 		extract($_POST);
 		$data = array();
-	
+		
+		// Fetch total number of questions from question_list
+		$totalQuestions = $this->db->query("SELECT COUNT(id) as total FROM question_list")->fetch_assoc()['total'];
+		
 		// Fetch evaluation answers with question text from question_list
 		$get = $this->db->query("
 			SELECT ea.*, q.question 
@@ -880,30 +922,23 @@ function delete_subject_restriction() {
 			AND subject_id = $subject_id 
 			AND class_id = $class_id
 		");
-	
-		$rate = array();
+		$totalQuestions=20;
+		$totalRating = 0;
 		while ($row = $get->fetch_assoc()) {
-			// Use question text as key in the $rate array
-			if (!isset($rate[$row['question']][$row['rate']])) {
-				$rate[$row['question']][$row['rate']] = 0;
-			}
-			$rate[$row['question']][$row['rate']] += 1; // Count occurrences of each rating per question
+			// Sum all ratings across the questions
+			$totalRating += $row['rate'];
 		}
 	
 		$ta = $answered->num_rows; // Total answered evaluations
-		$r = array();
 	
-		foreach ($rate as $qk => $qv) {
-			foreach ($qv as $rk => $rv) {
-				$r[$qk][$rk] = ($rate[$qk][$rk] / $ta) * 100; // Calculate percentage
-			}
-		}
+		// Calculate overall average rating by dividing total rating by (totalQuestions * totalEvaluations)
+		$averageRating = ($ta > 0 && $totalQuestions > 0) ? number_format($totalRating / ($totalQuestions * $ta), 2) : 0;
 	
 		$data['tse'] = $ta; // Total students evaluated
-		$data['data'] = $r; // Store the ratings data
-	
+		$data['averageRating'] = $averageRating; 
 		return json_encode($data);
 	}
+	
 	
     public function get_detailed_report() {
         extract($_POST);
@@ -987,14 +1022,14 @@ function delete_subject_restriction() {
 		while($row = $get->fetch_assoc()){
 			if(!isset($rate[$row['question_id']][$row['rate']]))
 				$rate[$row['question_id']][$row['rate']] = 0;
-			$rate[$row['question_id']][$row['rate']] += 1;
+			$rate[$row['question_id']][$row['rate']] += 5;
 		}
 	
 		$ta = $answered->num_rows;
 		$r = array();
 		foreach($rate as $qk => $qv){
 			foreach($qv as $rk => $rv){
-				$r[$qk][$rk] = ($rate[$qk][$rk] / $ta) * 100;
+				$r[$qk][$rk] = ($rate[$qk][$rk] / $ta) * 1;
 			}
 		}
 	

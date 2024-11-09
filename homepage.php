@@ -30,7 +30,7 @@
                         <li><a href="#about-us">About</a></li>
                         <li><a href="#contact-details">Contacts</a></li>
                         <li><a href="login.php">Login</a></li>
-                        <li><a href="register.php">Register</a></li>
+                      
                     </ul>
                 </div>
             </div>

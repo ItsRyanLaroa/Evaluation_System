@@ -46,17 +46,18 @@ if (isset($_SESSION['login_id'])) {
           <div class="card2">
             <div class="card-body">
               <form action="" id="login-form">
+                <!-- Change input name to school_id for student/faculty or email for admin -->
                 <div class="input-group">
-                  <input type="email" class="form-control" name="email" required placeholder="Email">
+                  <input type="text" class="form-control" name="email" required placeholder="Email or School ID">
                 </div>
 
                 <div class="input-group">
                   <input type="password" class="form-control" name="password" required placeholder="Password">
                 </div>
 
-                  <div class="button">
-                    <button type="submit" class="btn">Sign In</button>
-                  </div>
+                <div class="button">
+                  <button type="submit" class="btn">Sign In</button>
+                </div>
 
                 <p style="text-align: center;">
                   <a href="homepage.php">Go back to site</a>
@@ -66,10 +67,8 @@ if (isset($_SESSION['login_id'])) {
             <!-- /.card-body -->
           </div>
         </div>
-        <!-- /.login-side -->
-
-        <!-- Register Side -->
-        <div class="register-side">
+           <!-- Register Side -->
+           <div class="register-side">
           <div class="register-container">
             <div class="register-text">
               <h1>New Here?</h1>
@@ -80,7 +79,7 @@ if (isset($_SESSION['login_id'])) {
             </div>
           </div>
         </div>
-        <!-- /.register-side -->
+      
 
       </div>
     </div>
@@ -100,14 +99,14 @@ if (isset($_SESSION['login_id'])) {
         $.ajax({
           url: 'ajax.php?action=login',
           method: 'POST',
-          data: $(this).serialize(),
+          data: $(this).serialize(), // Send the form data
           error: function(err) {
             console.log(err);
             end_load();
           },
           success: function(resp) {
             if (resp == 1) {
-              location.href = 'index.php?page=home';
+              location.href = 'index.php?page=home'; // Redirect to home page
             } else {
               $('#login-form').prepend('<div class="alert alert-danger">Username or password is incorrect.</div>');
               end_load();
@@ -116,7 +115,6 @@ if (isset($_SESSION['login_id'])) {
         });
       });
     });
-    
   </script>
 
   <?php include 'footer.php'; ?>
