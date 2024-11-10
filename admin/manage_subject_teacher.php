@@ -88,23 +88,27 @@ $(document).ready(function(){
     $('#manage-subject-teacher-form').submit(function(e){
         e.preventDefault();
         start_load();
-        $('#msg').html('');
+        $('#msg').html(''); // Clear any previous messages
 
         $.ajax({
-            url: 'ajax.php?action=save_subject_teacher',
+            url: 'ajax.php?action=save_subject_teacher', // Send to the PHP script to process
             method: 'POST',
-            data: $(this).serialize(),
+            data: $(this).serialize(), // This will include subject_id, faculty_id[], and academic_year
             success: function(resp){
-                if(resp == 1){
+                if (resp == 1) {
                     alert_toast("Data successfully saved.", "success");
                     setTimeout(function(){
-                        location.reload();
+                        location.reload(); // Reload the page after success
                     }, 1750);
-                } else if(resp == 2){
+                } else if (resp == 2) {
                     $('#msg').html('<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> This teacher is already assigned to this subject for the selected academic year and semester.</div>');
                 } else {
                     $('#msg').html('<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> An error occurred while saving. Please try again.</div>');
                 }
+                end_load();
+            },
+            error: function() {
+                $('#msg').html('<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> An unexpected error occurred.</div>');
                 end_load();
             }
         });

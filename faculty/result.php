@@ -1,7 +1,7 @@
 <?php $faculty_id = $_SESSION['login_id'] ?>
 <?php 
 function ordinal_suffix($num){
-    $num = $num % 100; // protect against large numbers
+    $num = $num % 100;
     if($num < 11 || $num > 13){
          switch($num % 10){
             case 1: return $num.'st';
@@ -39,17 +39,16 @@ function ordinal_suffix($num){
                             <td></td>
                         </tr>
                         <tr>
-                      
                             <td width="50%"><p><b>Class: <span id="classField" style="color: #dc143c;"></span></b></p></td>
                             <td width="50%"><p><b>Subject: <span id="subjectField" style="color: #dc143c;"></span></b></p></td>
                         </tr>
                     </table>
                     
-                    <p class=""><b>Total Student Evaluated: <span id="tse" style="color: #dc143c;"></span></b></p>
-                    <p width="50%"><b>Avarage ratings: <span id="" style="color: #dc143c;"></span></b></p>
+                    <p><b>Total Student Evaluated: <span id="tse" style="color: #dc143c;"></span></b></p>
+                    <p width="50%"><b>Average Ratings: <span id="averageRating" style="color: #dc143c;"></span></b></p>
                 </div>
                 <fieldset class="border border-info p-2 w-100">
-                    <span style="font-weight: bold;"><legend  class="w-auto">Rating Legend</legend></span>
+                    <legend class="w-auto" style="font-weight: bold;">Rating Legend</legend>
                     <span style="color: #dc143c; font-weight: bold;">5</span> - Strongly Agree <span style="color: #007bff; font-weight: bold;"> | </span>
                     <span style="color: #dc143c; font-weight: bold;">4</span> - Agree <span style="color: #007bff; font-weight: bold;"> | </span>
                     <span style="color: #dc143c; font-weight: bold;">3</span> - Uncertain <span style="color: #007bff; font-weight: bold;"> | </span>
@@ -58,7 +57,6 @@ function ordinal_suffix($num){
                 </fieldset>
 
                 <?php 
-                // Fetch criteria and questions for the report
                 $criteria = $conn->query("SELECT * FROM criteria_list WHERE id IN (SELECT criteria_id FROM question_list WHERE academic_id = {$_SESSION['academic']['id']}) ORDER BY ABS(order_by) ASC");
                 while($crow = $criteria->fetch_assoc()):
                 ?>
@@ -167,15 +165,16 @@ function ordinal_suffix($num){
                     if(Object.keys(resp).length <= 0){
                         $('.rates').text('');
                         $('#tse').text('');
+                        $('#averageRating').text(''); // Clear average rating
                         $('#print-btn').hide();
                     } else {
                         $('#print-btn').show();
                         $('#tse').text(resp.tse);
+                        $('#averageRating').text(resp.averageRating); // Display average rating
                         $('.rates').text('-');
                         var data = resp.data;
                         Object.keys(data).map(q=>{
                             Object.keys(data[q]).map(r=>{
-                                // Display the ratings with two decimal places
                                 var rate = parseFloat(data[q][r]).toFixed(2);
                                 $('.rate_'+r+'_'+q).text(rate);
                             });
@@ -197,5 +196,10 @@ function ordinal_suffix($num){
         var nw = window.open("Report", "_blank", "width=900,height=700");
         nw.document.write(ns.html());
         nw.document.close();
+        nw.print();
+        setTimeout(function(){
+            nw.close();
+            end_load();
+        }, 500);
     });
 </script>

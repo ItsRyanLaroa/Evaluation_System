@@ -114,44 +114,59 @@ function ordinal_suffix($num) {
 </style>
 
 <script>
+  
     $(document).ready(function() {
         let rowsPerPage = 5;
         let currentPage = 1;
 
+        // Search function
         $('#search-input').on('keyup', function() {
             let value = $(this).val().toLowerCase();
             filterTable(value);
         });
 
+        // Rows per page selector change
         $('#rows-per-page').on('change', function() {
             rowsPerPage = parseInt($(this).val());
             currentPage = 1;
             paginateTable();
         });
 
+        // Function to filter the table based on the search query
         function filterTable(query) {
             $('#evaluation-table-body tr').each(function() {
-                $(this).toggle($(this).text().toLowerCase().indexOf(query) > -1);
+                const rowText = $(this).text().toLowerCase();
+                $(this).toggle(rowText.indexOf(query) > -1);  // Show or hide rows based on the query
             });
-            paginateTable();
+            paginateTable();  // Recalculate pagination after filtering
         }
 
+        // Function to paginate the table
         function paginateTable() {
             const rows = $('#evaluation-table-body tr');
-            const totalRows = rows.length;
+            const filteredRows = rows.filter(':visible'); // Only visible rows are considered
+            const totalRows = filteredRows.length;
             const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+            // Hide all rows initially
             rows.hide();
 
+            // Calculate the range of rows to be displayed
             const start = (currentPage - 1) * rowsPerPage;
             const end = start + rowsPerPage;
-            rows.slice(start, end).show();
 
-            renderPaginationControls(totalPages);
+            // Show only the rows for the current page
+            filteredRows.slice(start, end).show();
+
+            // Render pagination controls
+            renderPaginationControls(totalPages, totalRows);
         }
 
-        function renderPaginationControls(totalPages) {
+        // Function to render pagination controls
+        function renderPaginationControls(totalPages, totalRows) {
             $('#pagination-controls').empty();
 
+            // Disable buttons if necessary
             const prevButton = $('<button></button>')
                 .text('Previous')
                 .prop('disabled', currentPage === 1)
@@ -164,7 +179,7 @@ function ordinal_suffix($num) {
 
             const nextButton = $('<button></button>')
                 .text('Next')
-                .prop('disabled', currentPage === totalPages)
+                .prop('disabled', currentPage === totalPages || totalRows === 0)
                 .on('click', function() {
                     if (currentPage < totalPages) {
                         currentPage++;
@@ -172,8 +187,10 @@ function ordinal_suffix($num) {
                     }
                 });
 
+            // Append the Previous button
             $('#pagination-controls').append(prevButton);
 
+            // Create page number buttons
             for (let i = 1; i <= totalPages; i++) {
                 const btn = $('<button></button>')
                     .text(i)
@@ -185,9 +202,13 @@ function ordinal_suffix($num) {
                 $('#pagination-controls').append(btn);
             }
 
+            // Append the Next button
             $('#pagination-controls').append(nextButton);
         }
 
+        // Initialize pagination
         paginateTable();
     });
 </script>
+
+

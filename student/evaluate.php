@@ -18,16 +18,17 @@ $rid = isset($_GET['rid']) ? $_GET['rid'] : '';
 $faculty_id = isset($_GET['fid']) ? $_GET['fid'] : '';
 $subject_id = isset($_GET['sid']) ? $_GET['sid'] : '';
 
-// Fetch restrictions only once
-$restriction = $conn->query("SELECT r.id, s.id as sid, f.id as fid, concat(f.firstname, ' ', f.lastname) as faculty, s.code, s.subject 
-    FROM restriction_list r 
-    INNER JOIN faculty_list f ON f.id = r.faculty_id 
-    INNER JOIN subject_list s ON s.id = r.subject_id 
-    WHERE academic_id = {$_SESSION['academic']['id']} 
-    AND class_id = {$_SESSION['login_class_id']} 
-    AND r.id NOT IN (SELECT restriction_id FROM evaluation_list 
-    WHERE academic_id = {$_SESSION['academic']['id']} 
-    AND student_id = {$_SESSION['login_id']})");
+// Fetch restrictions with evaluations if they exist
+$restriction = $conn->query("SELECT r.id, s.id as sid, f.id as fid, concat(f.firstname, ' ', f.lastname) as faculty, s.code, s.subject, el.evaluation_id as evaluation_id
+    FROM restriction_list r
+    INNER JOIN faculty_list f ON f.id = r.faculty_id
+    INNER JOIN subject_list s ON s.id = r.subject_id
+    LEFT JOIN evaluation_list el ON el.restriction_id = r.id 
+        AND el.academic_id = {$_SESSION['academic']['id']} 
+        AND el.student_id = {$_SESSION['login_id']}
+    WHERE r.academic_id = {$_SESSION['academic']['id']}
+        AND r.class_id = {$_SESSION['login_class_id']}
+");
 
 ?>
 
@@ -53,32 +54,64 @@ $restriction = $conn->query("SELECT r.id, s.id as sid, f.id as fid, concat(f.fir
         background: #007bff !important;
         color: #fff;
     }
+
+   .evaluated {
+    color: white; 
+    cursor: not-allowed; 
+    pointer-events: none; /* Disables any interaction with the element */
+    user-select: none; /* Prevents text selection */
+}
+
+.evaluated .badge {
+    cursor: not-allowed;
+}
+
+.evaluated input[type="radio"] {
+    pointer-events: none; /* Disables radio buttons */
+}
+
+.evaluated label {
+    pointer-events: none; /* Prevents clicking on the label */
+}
+
+.evaluated:hover {
+    background-color: transparent; /* Prevents hover effect */
+}
+
+    .evaluated { color: white; cursor: not-allowed; } .evaluated .badge { cursor: not-allowed; }
+    
 </style>
 
 <div class="col-lg-12">
     <div class="row">
-        <div class="col-md-3">
-            <div class="list-group">
-                <?php 
-                $displayed_ids = []; // Array to track displayed IDs
-                while ($row = $restriction->fetch_array()):
-                    if (empty($rid)) {
-                        $rid = $row['id'];
-                        $faculty_id = $row['fid'];
-                        $subject_id = $row['sid'];
-                    }
-                    if (!in_array($row['id'], $displayed_ids)) { // Check if ID has already been displayed
-                        $displayed_ids[] = $row['id']; // Add ID to the array
-                ?>
-                <a class="list-group-item list-group-item-action <?php echo isset($rid) && $rid == $row['id'] ? 'active' : '' ?>" 
-                    href="./index.php?page=evaluate&rid=<?php echo $row['id'] ?>&sid=<?php echo $row['sid'] ?>&fid=<?php echo $row['fid'] ?>">
-                    <?php echo ucwords($row['faculty']) . ' - (' . $row["code"] . ') ' . $row['subject'] ?>
-                </a>
-                <?php 
-                    } // End of ID check
-                endwhile; ?>
-            </div>
-        </div>
+      <div class="col-md-3">
+    <div class="list-group">
+        <?php 
+        $displayed_ids = []; // Array to track displayed IDs
+        while ($row = $restriction->fetch_array()):
+            // Remove the automatic selection code
+            if (!in_array($row['id'], $displayed_ids)) { // Check if ID has already been displayed
+                $displayed_ids[] = $row['id']; // Add ID to the array
+        ?>
+        <a class="list-group-item list-group-item-action <?php echo isset($rid) && $rid == $row['id'] ? 'active' : '' ?>" 
+            href="./index.php?page=evaluate&rid=<?php echo $row['id'] ?>&sid=<?php echo $row['sid'] ?>&fid=<?php echo $row['fid'] ?>"
+            <?php echo $row['evaluation_id'] ? 'style="pointer-events: none;"' : ''; ?>>
+            <?php echo ucwords($row['faculty']) . ' - (' . $row["code"] . ') ' . $row['subject'] ?>
+            <?php if ($row['evaluation_id']): ?>
+                <span class="badge badge-success evaluated">
+                    <i class="fa fa-check"></i> Done
+                </span>
+            <?php else: ?>
+                <span class="badge badge-warning">Not Evaluated</span>
+            <?php endif; ?>
+        </a>
+
+        <?php 
+            } // End of ID check
+        endwhile; ?>
+    </div>
+</div>
+
         <div class="col-md-9">
             <div class="card card-outline card-info">
                 <div class="card-header">
@@ -125,6 +158,7 @@ $restriction = $conn->query("SELECT r.id, s.id as sid, f.id as fid, concat(f.fir
                                     ORDER BY abs(order_by) ASC");
                                 while ($row = $questions->fetch_assoc()):
                                     $q_arr[$row['id']] = $row;
+                                    $isEvaluated = isset($row['evaluation_id']) && $row['evaluation_id'] > 0;
                                 ?>
                                 <tr class="bg-white">
                                     <td class="p-1" width="40%">
@@ -134,7 +168,7 @@ $restriction = $conn->query("SELECT r.id, s.id as sid, f.id as fid, concat(f.fir
                                     <?php for ($c = 1; $c <= 5; $c++): ?>
                                     <td class="text-center">
                                         <div class="icheck-success d-inline">
-                                            <input type="radio" name="rate[<?php echo $row['id'] ?>]" id="qradio<?php echo $row['id'] . '_' . $c ?>" value="<?php echo $c ?>">
+                                            <input type="radio" name="rate[<?php echo $row['id'] ?>]" id="qradio<?php echo $row['id'] . '_' . $c ?>" value="<?php echo $c ?>" <?php echo $isEvaluated ? 'disabled' : ''; ?>>
                                             <label for="qradio<?php echo $row['id'] . '_' . $c ?>"></label>
                                         </div>
                                     </td>
@@ -152,63 +186,61 @@ $restriction = $conn->query("SELECT r.id, s.id as sid, f.id as fid, concat(f.fir
 </div>
 
 <script>
-    $(document).ready(function(){
-        // Check the status of the academic session
-        if('<?php echo $_SESSION['academic']['status'] ?>' == 0){
-            uni_modal("Information", "<?php echo $_SESSION['login_view_folder'] ?>not_started.php");
-        } else if('<?php echo $_SESSION['academic']['status'] ?>' == 2){
-            uni_modal("Information", "<?php echo $_SESSION['login_view_folder'] ?>closed.php");
-        }
-
-        if(<?php echo empty($rid) ? 1 : 0 ?> == 1) {
-            uni_modal("Information", "<?php echo $_SESSION['login_view_folder'] ?>done.php");
-        }
-
-        // Function to check if all questions have been answered
-        function checkFormCompletion() {
-            let allAnswered = true;
-            $('input[type="radio"]').each(function() {
-                const name = $(this).attr('name');
-                if (!$('input[name="' + name + '"]:checked').length) {
-                    allAnswered = false;
-                    return false; // exit loop if any question is unanswered
-                }
-            });
-            // Enable the submit button if all questions are answered
-            $('#submit-evaluation').prop('disabled', !allAnswered);
-        }
-
-        // Event listener for radio button change
-        $('input[type="radio"]').on('change', function() {
-            checkFormCompletion();
-        });
-
-        $('#manage-evaluation').submit(function(e){
-            e.preventDefault();
-            start_load();
-
-            $.ajax({
-                url: 'ajax.php?action=save_evaluation',
-                method: 'POST',
-                data: $(this).serialize(),
-                success: function(resp){
-                    if(resp == 1){
-                        alert_toast("Data successfully saved.", "success");
-                        setTimeout(function(){
-                            location.reload(); // Reload to reflect the changes
-                        }, 1750);
-                    } else {
-                        alert_toast("Failed to save evaluation. Please try again.", "error");
-                    }
-                },
-                error: function(){
-                    alert_toast("An error occurred during the process.", "error");
-                    end_load(); 
-                }
-            });
-        });
-
-        // Initial check for enabling submit button
-        checkFormCompletion();
+    $(document).ready(function() {
+    // Prevent clicking on links if they are evaluated
+    $('.evaluated-link').on('click', function(e) {
+        e.preventDefault(); // Prevent the link from being clicked
+        alert('This evaluation has already been completed.');
     });
+
+    // Function to check if all questions have been answered
+    function checkFormCompletion() {
+        let allAnswered = true;
+        $('input[type="radio"]').each(function() {
+            const name = $(this).attr('name');
+            if (!$('input[name="' + name + '"]:checked').length) {
+                allAnswered = false;
+                return false; // exit loop if any question is unanswered
+            }
+        });
+        // Enable the submit button if all questions are answered
+        $('#submit-evaluation').prop('disabled', !allAnswered);
+    }
+
+    // Event listener for when a radio button is selected
+    $('input[type="radio"]').on('change', checkFormCompletion);
+
+    // Initial check if form is complete
+    checkFormCompletion();
+
+    $('#manage-evaluation').submit(function(e){
+        e.preventDefault();
+        start_load();
+        $.ajax({
+            url: 'ajax.php?action=save_evaluation',
+            method: 'POST',
+            data: $(this).serialize(),
+            success:function(response){
+                end_load();
+                if(response == 1){
+                    alert_toast("Evaluation successfully submitted.", "success");
+                    
+                    // Automatically redirect to the next restriction
+                    setTimeout(function(){
+                        let nextRestriction = $('.list-group-item.active').next('.list-group-item');
+                        if (nextRestriction.length) {
+                            let nextUrl = nextRestriction.attr('href');
+                            window.location.href = nextUrl;
+                        } else {
+                            alert("All evaluations are completed.");
+                        }
+                    }, 1500);
+                } else {
+                    alert_toast("Error saving the evaluation.", "error");
+                }
+            }
+        });
+    });
+});
 </script>
+

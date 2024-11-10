@@ -69,17 +69,29 @@ h3{
 </div>
 
 <div class="row">
-  <div class="col-12 col-sm-6 col-md-4">
+<div class="col-12 col-sm-6 col-md-4">
     <div class="small-box bg-light shadow-sm border">
-      <div class="inner">
-        <h3><?php echo $conn->query("SELECT * FROM evaluation_list")->num_rows; ?></h3> <!-- Total Persons Evaluated -->
-        <p>Total Students Who Evaluated</p>
-      </div>
-      <div class="icon">
-        <i class="fa fa-clipboard-check"></i> <!-- Change icon as needed -->
-      </div>
+        <div class="inner">
+            <h3>
+                <?php 
+                // Query to count evaluations for the logged-in user
+                $evaluated_count_query = "SELECT COUNT(*) AS total_evaluated 
+                                          FROM evaluation_list 
+                                          WHERE student_id = {$_SESSION['login_id']} 
+                                          AND academic_id = {$_SESSION['academic']['id']}";
+                $result = $conn->query($evaluated_count_query);
+                $row = $result->fetch_assoc();
+                echo $row['total_evaluated']; 
+                ?>
+            </h3>
+            <p>Total Faculty Evaluated</p>
+        </div>
+        <div class="icon">
+            <i class="fa fa-clipboard-check"></i>
+        </div>
     </div>
-  </div>
+</div>
+
   <div class="col-12 col-sm-6 col-md-4">
     <div class="small-box bg-light shadow-sm border">
       <div class="inner">

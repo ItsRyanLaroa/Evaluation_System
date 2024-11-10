@@ -410,24 +410,38 @@ function login(){
 			foreach ($faculty_id as $teacher_id) {
 				$teacher_id = intval($teacher_id);
 	
-				// Check if this teacher is already associated with this subject
-				$chk = $this->db->query("SELECT * FROM subject_teacher WHERE subject_id = $subject_id AND faculty_id = $teacher_id")->num_rows;
+				// Check if this teacher is already associated with this subject for the selected academic year
+				$chk = $this->db->query("SELECT * FROM subject_teacher WHERE subject_id = $subject_id AND faculty_id = $teacher_id AND academic_year = $academic_year")->num_rows;
+	
 				if ($chk > 0) {
+					// If the teacher is already assigned for the selected academic year, skip the insertion
 					$existing_teacher_found = true;
-					continue; // Skip if this faculty_id is already associated with this subject_id
+					continue;
 				}
 	
-				// Insert new association with subject, teacher, and academic year
-				$save = $this->db->query("INSERT INTO subject_teacher (subject_id, faculty_id, academic_year) VALUES ($subject_id, $teacher_id, $academic_year)");
-				if (!$save) {
-					return 0; // Return error if the insertion fails
+				// Check if the teacher is associated with the subject in a different academic year
+				$existing_different_year = $this->db->query("SELECT * FROM subject_teacher WHERE subject_id = $subject_id AND faculty_id = $teacher_id")->num_rows;
+				if ($existing_different_year > 0) {
+					// If teacher is already assigned to this subject but with a different academic year, allow insertion
+					// Insert new association with subject, teacher, and academic year
+					$save = $this->db->query("INSERT INTO subject_teacher (subject_id, faculty_id, academic_year) VALUES ($subject_id, $teacher_id, $academic_year)");
+					if (!$save) {
+						return 0; // Return error if the insertion fails
+					}
+				} else {
+					// If teacher is not associated with the subject at all, insert the new record
+					$save = $this->db->query("INSERT INTO subject_teacher (subject_id, faculty_id, academic_year) VALUES ($subject_id, $teacher_id, $academic_year)");
+					if (!$save) {
+						return 0; // Return error if the insertion fails
+					}
 				}
 			}
 		}
 	
-		// Return 2 if a teacher already exists, otherwise return 1 for success
+		// Return 2 if a teacher already exists for the selected academic year, otherwise return 1 for success
 		return $existing_teacher_found ? 2 : 1;
 	}
+	
 	function delete_subject_teacher() { 
 		if (!isset($_POST['id'])) {
 			return 0;
@@ -1000,7 +1014,7 @@ function delete_subject_restriction() {
 		extract($_POST);
 		$data = array();
 	
-		// Modify the first query to include only evaluations with status 'active'
+		// Fetch evaluations with status 'active'
 		$get = $this->db->query("SELECT * FROM evaluation_answers 
 			WHERE evaluation_id IN 
 				(SELECT evaluation_id FROM evaluation_list 
@@ -1010,7 +1024,7 @@ function delete_subject_restriction() {
 					AND class_id = $class_id 
 					AND status = 'active')");
 	
-		// Modify the second query to count only active evaluations
+		// Count active evaluations
 		$answered = $this->db->query("SELECT * FROM evaluation_list 
 			WHERE academic_id = {$_SESSION['academic']['id']} 
 			AND faculty_id = $faculty_id 
@@ -1019,25 +1033,37 @@ function delete_subject_restriction() {
 			AND status = 'active'");
 	
 		$rate = array();
-		while($row = $get->fetch_assoc()){
-			if(!isset($rate[$row['question_id']][$row['rate']]))
+		$totalRating = 0;
+		while ($row = $get->fetch_assoc()) {
+			$totalRating += $row['rate']; // Sum all ratings across questions
+			if (!isset($rate[$row['question_id']][$row['rate']])) {
 				$rate[$row['question_id']][$row['rate']] = 0;
+			}
 			$rate[$row['question_id']][$row['rate']] += 5;
 		}
 	
-		$ta = $answered->num_rows;
+		$ta = $answered->num_rows; // Total answered evaluations
 		$r = array();
-		foreach($rate as $qk => $qv){
-			foreach($qv as $rk => $rv){
+	
+		foreach ($rate as $qk => $qv) {
+			foreach ($qv as $rk => $rv) {
 				$r[$qk][$rk] = ($rate[$qk][$rk] / $ta) * 1;
 			}
 		}
 	
+		// Calculate overall average rating
+		$totalQuestions = 20; // Ensure this is accurate or dynamically fetched
+		$averageRating = ($ta > 0 && $totalQuestions > 0) ? number_format($totalRating / ($totalQuestions * $ta), 2) : 0;
+	
 		$data['tse'] = $ta;
+		$data['totalRating'] = $totalRating;
+		$data['averageRating'] = $averageRating;
 		$data['data'] = $r;
-		
+	
 		return json_encode($data);
 	}
+	
+	
 	
 	
 	public function toggle_status($status) {
