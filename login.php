@@ -66,8 +66,9 @@ if (isset($_SESSION['login_id'])) {
             </div>
             <!-- /.card-body -->
           </div>
+
+          <!--
         </div>
-           <!-- Register Side -->
            <div class="register-side">
           <div class="register-container">
             <div class="register-text">
@@ -78,7 +79,7 @@ if (isset($_SESSION['login_id'])) {
               <a href="register.php" class="regBtn">Sign Up</a>
             </div>
           </div>
-        </div>
+        </div> -->
       
 
       </div>

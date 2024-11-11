@@ -36,12 +36,12 @@ $restriction = $conn->query("SELECT r.id, s.id as sid, f.id as fid, concat(f.fir
     .list-group-item.active {
         z-index: 2;
         color: #fff;
-        background-color: #dc143c;
+        background-color: #9b0a1e;
         border-color: black;
     }
 
     .card-info.card-outline {
-        border-top: 3px solid #dc143c !important;
+        border-top: 3px solid #9b0a1e !important;
     }
 
     .border-info {
@@ -79,7 +79,13 @@ $restriction = $conn->query("SELECT r.id, s.id as sid, f.id as fid, concat(f.fir
 }
 
     .evaluated { color: white; cursor: not-allowed; } .evaluated .badge { cursor: not-allowed; }
-    
+
+    .bg-gradient-secondary {
+    background: #9b0a1e !important;
+    color: #fff;
+}
+
+
 </style>
 
 <div class="col-lg-12">

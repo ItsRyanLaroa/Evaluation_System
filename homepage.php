@@ -29,65 +29,24 @@
                         <li><a href="homepage.php">Home</a></li>
                         <li><a href="#about-us">About</a></li>
                         <li><a href="#contact-details">Contacts</a></li>
-                        <li><a href="login.php">Login</a></li>
-                      
                     </ul>
                 </div>
             </div>
         </div>
     </header>
 
-    <div style="min-height:400px; padding-bottom:10px;">
+    <div style="min-height: 400px;">
         <div class="pattern">
             <div class="container">
                 <div class="first-row">
-                    <div class="row-title">
-                        <h1>FACULTY EVALUATION SYSTEM</h1>
-                        <p>Students and teachers can now evaluate through this tool.</p>
-                    </div>
-                </div>
-                
-                <div class="second-row">
-                    <div class="image-column">
-                        <div class="left-img">
-                            <img src="images/studentevaluate.png">
-                        </div>
+                    <div class="left-column">
+                        <h1>Your Feedback, <br>Our Progress.</h1>
+                        <a href="login.php">Login Here</a>
                     </div>
 
-                    <div class="text-column">
-                        <div class="right-content">
-                            <h2>Student evaluating a teacher</h2>
-                            <p>Students can evaluate faculty of subjects enrolled in a semester. This feedback allows students to express their opinions on teaching effectiveness, course content, and overall learning experiences. By participating in these evaluations, students contribute to improving educational quality and hold faculty accountable for their performance.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="third-row">
-                    <div class="text-column">
-                        <div class="right-content">
-                            <h2>Faculty evaluating their colleagues</h2>
-                            <p>Faculty can evaluate their colleagues in their respective departments. This peer evaluation process fosters a collaborative environment where educators can share constructive feedback on teaching methods, curriculum development, and research contributions. By engaging in these evaluations, faculty members promote professional growth and accountability within the department.</p>
-                        </div>
-                    </div>
-
-                    <div class="image-column">
-                        <div class="left-img">
-                            <img src="images/teacher.png">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="second-row">
-                    <div class="image-column">
-                        <div class="left-img">
-                            <img src="images/dean.png">
-                        </div>
-                    </div>
-
-                    <div class="text-column">
-                        <div class="right-content">
-                            <h2>Faculty evaluating their dean</h2>
-                            <p>Faculty can evaluate their dean's department. This evaluation process allows faculty members to provide feedback on departmental leadership, communication, and support for academic initiatives. By sharing their insights, faculty contribute to a culture of transparency and accountability, ensuring that the department aligns with the needs and goals of both faculty and students.</p>
+                    <div class="right-column">
+                        <div class="image-column">
+                            <img src="images/evaluates.png" alt="Evaluating image">
                         </div>
                     </div>
                 </div>
@@ -95,26 +54,40 @@
         </div>
     </div>
 
+
     <div class="about-us" id="about-us">
-        <div class="about-logo">
+        <div class="about-image">
             <div class="first-alogo">
-                <img src="images/feslogo.png" alt="">
-            </div>
-            <div class="second-alogo">
-                <img src="images/file.png" alt="">
+                <img src="images/questions.png" alt="">
             </div>
         </div>
         <div class="about-details">
-            <h1>What is Faculty Evaluation System?</h1>
-            <p>The Faculty Evaluation System is a web application designed to automate the evaluation of faculty performance. The system provides an effective and timely way to monitor faculty performance, facilitating quick intervention when needed. The confidentiality of the information is fully upheld.</p>
+            <h1>About App</h1>
+            <p>An intuitive evaluation system for gathering valuable feedback, offering clear insights to support teaching growth and a better learning experience.</p>
         </div>
     </div>
+
+    <div class="features">
+        <div class="features-details">
+            <h1>Features</h1>
+            <ul>
+                <li><span class="check"></span>Students can evaluate teachers.</li>
+                <li><span class="check"></span>Automated generates report.</li>
+                <li><span class="check"></span>Accessible accross all devices.</li>
+            </ul>
+        </div>
+        <div class="features-image">
+            <img src="images/devices.png" alt="">
+        </div>
+    </div>
+
+
     <footer>
         <div class="footer-pattern">
             <div class="footer-container">
                 <div class="footer-logo">
                     <div class="first-flogo">
-                        <img src="images/feslogo.png" alt="">
+                        <img src="images/whitefeslogo.png" alt="">
                     </div>
                     <div class="second-flogo">
                         <img src="images/file.png" alt="">
@@ -203,6 +176,43 @@ $(document).ready(function() {
             $('.text-column').addClass('animate');
         }, 100);
     });
+});
+
+
+const aboutSection = document.querySelector("#about-us");
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            aboutSection.classList.add("animate");
+        } else {
+            aboutSection.classList.remove("animate");
+        }
+    });
+}, { threshold: 0.5 });
+
+
+observer.observe(aboutSection);
+
+
+
+const featuresDetails = document.querySelector('.features-details');
+const featuresImage = document.querySelector('.features-image');
+
+
+function isInViewport(element) {
+    const rect = element.getBoundingClientRect();
+    return rect.top <= window.innerHeight && rect.bottom >= 0;
+}
+
+
+window.addEventListener('scroll', function() {
+    if (isInViewport(featuresDetails)) {
+        featuresDetails.classList.add('scrolled');
+    }
+    if (isInViewport(featuresImage)) {
+        featuresImage.classList.add('scrolled');
+    }
 });
 
 
