@@ -181,7 +181,7 @@ function ordinal_suffix($num){
                         });
                     }
                 }
-            },
+             },
             complete: function(){
                 end_load();
             }
@@ -189,17 +189,36 @@ function ordinal_suffix($num){
     }
 
     $('#print-btn').click(function(){
-        start_load();
-        var ns = $('noscript').clone();
-        var content = $('#printable').html();
-        ns.append(content);
-        var nw = window.open("Report", "_blank", "width=900,height=700");
-        nw.document.write(ns.html());
-        nw.document.close();
-        nw.print();
-        setTimeout(function(){
-            nw.close();
-            end_load();
-        }, 500);
-    });
+    start_load();
+    
+    // Clone the content inside #printable for printing
+    var printableContent = $('#printable').clone();
+    
+    // Create a new window for the printable content
+    var printWindow = window.open("", "_blank", "width=900,height=700");
+    
+    // Build the HTML structure for the print window
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Evaluation Report</title>
+                <link rel="stylesheet" href="path/to/your/css/styles.css"> <!-- Add your CSS path here -->
+            </head>
+            <body>
+                <div>
+                    ${printableContent.html()}
+                </div>
+            </body>
+        </html>
+    `);
+
+    // Close the document and trigger the print
+    printWindow.document.close();
+    printWindow.print();
+    
+    // Remove the `setTimeout` so the window stays open until the user closes it
+    end_load();
+});
+
+
 </script>

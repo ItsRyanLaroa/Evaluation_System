@@ -27,13 +27,12 @@ function ordinal_suffix($num) {
     position: relative;
     display: flex;
     flex-direction: column;
-    width: 180%;
+    width: 100%;
     pointer-events: auto;
     background-color: #fff;
     border: 1px solid rgba(0, 0, 0, .2);
     border-radius: .3rem;
     box-shadow: 0 .25rem .5rem rgba(0, 0, 0, .5);
-    right: 140px;
 }
 .card-body {
     display: flex;
@@ -241,8 +240,8 @@ function ordinal_suffix($num) {
         });
 
         function displayReport(data) {
-            var reportHtml = `<h4>Total Students Evaluated: ${data.tse}</h4>`;
-            reportHtml += `<h5>Overall Average Rating: ${data.averageRating}</h5>`;
+            var reportHtml = `<h6>Total Students Evaluated: ${data.tse}</h6>`;
+            reportHtml += `<h3>Overall Average Rating: ${data.averageRating}/5</h3>`;
             $('#report-content').html(reportHtml);
             $('#report-modal').modal('show');
         }

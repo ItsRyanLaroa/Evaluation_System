@@ -107,9 +107,9 @@ $astat = array("Not Yet Started","On-going","Closed");
           $faculty_id = $_SESSION['login_id']; // Adjust this according to your session setup
           $total_subjects_query = "
             SELECT COUNT(DISTINCT sl.id) AS total_subjects
-            FROM class_list cl
-            JOIN subject_list sl ON cl.subject_id = sl.id
-            WHERE cl.teacher_id = ?"; // Use the correct field that links to the user (faculty_id)
+            FROM subject_teacher st
+            JOIN subject_list sl ON st.subject_id = sl.id
+            WHERE st.faculty_id = ?"; // Use the correct field that links to the user (faculty_id)
           
           $stmt = $conn->prepare($total_subjects_query);
           $stmt->bind_param("i", $faculty_id);
