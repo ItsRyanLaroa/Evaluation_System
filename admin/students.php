@@ -7,7 +7,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     // Modify the query to retrieve all teachers and subjects associated with the class
     $class_qry = $conn->prepare("SELECT c.id as class_id, 
                                         concat(c.curriculum, ' ', c.level, '-', c.section) as class,
-                                        c.teacher_id, c.subject_id
+                                        c.faculty_id, c.subject_id
                                  FROM class_list c
                                  WHERE c.id = ?");
     $class_qry->bind_param("i", $id); // Bind the $id parameter
@@ -20,7 +20,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
         $class_id = $class_data['class_id'];
         
         // Fetch teachers
-        $teacher_ids = explode(',', $class_data['teacher_id']);
+        $teacher_ids = explode(',', $class_data['faculty_id']);
         $teachers = [];
         if (!empty($teacher_ids)) {
             $teacher_id_placeholders = implode(',', array_fill(0, count($teacher_ids), '?'));

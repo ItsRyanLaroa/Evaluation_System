@@ -27,12 +27,12 @@ h3{
   }
 
   .icon i{
-      color: #dc143c;
+      color: #9b0a1e;
       padding: 10px 10px 10px 0;
   }
 
   .inner h3{
-    color: #dc143c;
+    color: #9b0a1e;
   }
 
   .inner p{

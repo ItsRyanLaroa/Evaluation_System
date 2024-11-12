@@ -46,17 +46,17 @@ $code = isset($code) ? $code : substr(str_shuffle("0123456789abcdefghijklmnopqrs
         </div>
 
         <div class="form-group">
-            <label class="control-label">Teacher</label>
-            <div id="teacher_list">
+            <label class="control-label">Faculty</label>
+            <div id="faculty_list">
                 <?php
-                $teacher = $conn->query("SELECT * FROM faculty_list ORDER BY lastname ASC");
-                $selected_teachers = isset($teacher_id) ? explode(',', $teacher_id) : []; // Split selected teachers if any
-                while($row = $teacher->fetch_assoc()):
+                $faculty = $conn->query("SELECT * FROM faculty_list ORDER BY lastname ASC");
+                $selected_faculties = isset($faculty_id) ? explode(',', $faculty_id) : []; // Split selected faculties if any
+                while($row = $faculty->fetch_assoc()):
                 ?>
                     <div class="form-check">
-                        <input type="checkbox" class="form-check-input" name="teacher_id[]" 
+                        <input type="checkbox" class="form-check-input" name="faculty_id[]" 
                             value="<?php echo $row['id']; ?>" 
-                            <?php echo in_array($row['id'], $selected_teachers) ? 'checked' : ''; ?>>
+                            <?php echo in_array($row['id'], $selected_faculties) ? 'checked' : ''; ?>>
                         <label class="form-check-label">
                             <?php echo $row['lastname'] . ", " . $row['firstname']; ?>
                         </label>
@@ -65,10 +65,7 @@ $code = isset($code) ? $code : substr(str_shuffle("0123456789abcdefghijklmnopqrs
             </div>
         </div>
 
-
-     
-
-            <script>
+        <script>
 $(document).ready(function(){
     $('#manage-class').submit(function(e){
         e.preventDefault();
@@ -96,4 +93,3 @@ $(document).ready(function(){
     });
 });
 </script>
-

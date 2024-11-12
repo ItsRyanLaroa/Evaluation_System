@@ -76,7 +76,7 @@ table.table-bordered.dataTable tbody th, table.table-bordered.dataTable tbody td
 }
 
 thead th {
-    background-color: #dc143c;
+    background-color: #9b0a1e;
     color: #f3f3f3;
     font-weight: bold;
 }

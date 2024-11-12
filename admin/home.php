@@ -24,15 +24,15 @@ $astat = array("Not Yet Started","On-going","Closed");
     }
 
     .callout.callout-info{
-      border-left-color: #dc143c;
+      border-left-color: #9b0a1e;
     }
 
     .icon i{
-      color: #dc143c;
+      color: #9b0a1e;
       padding: 10px 10px 10px 0;
     }
     .inner h3{
-      color: #dc143c;
+      color: #9b0a1e;
     }
     .inner p{
       font-weight: bold;

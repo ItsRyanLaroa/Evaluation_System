@@ -29,7 +29,7 @@ $query = "
            CONCAT(sl.code, ' - ', sl.subject) AS subject_name
     FROM class_list cl
     JOIN subject_list sl ON FIND_IN_SET(sl.id, cl.subject_id) > 0
-    WHERE FIND_IN_SET(?, cl.teacher_id) > 0
+    WHERE FIND_IN_SET(?, cl.faculty_id) > 0
 ";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $faculty_id);

@@ -334,23 +334,23 @@ function login(){
 	
 		// Build the SQL data string, excluding certain keys and non-numeric values
 		foreach($_POST as $k => $v){
-			if(!in_array($k, array('id', 'user_ids', 'teacher_id', 'subject_id', 'class_code')) && !is_numeric($k)){
+			if(!in_array($k, array('id', 'user_ids', 'faculty_id', 'subject_id', 'class_code')) && !is_numeric($k)){
 				$data .= empty($data) ? " $k='$v' " : ", $k='$v' ";
 			}
 		}
 	
-		// Handle multiple teacher IDs by converting them to a comma-separated string
-		if(isset($teacher_id) && is_array($teacher_id)){
-			$teacher_ids = implode(',', $teacher_id);
-			$data .= ", teacher_id='$teacher_ids' ";
+		// Handle multiple faculty IDs by converting them to a comma-separated string
+		if(isset($faculty_id) && is_array($faculty_id)){
+			$faculty_ids = implode(',', $faculty_id);
+			$data .= ", faculty_id='$faculty_ids' ";
 		}
 	
-		// Automatically retrieve subjects linked to the provided teacher IDs
-		if(isset($teacher_id) && is_array($teacher_id)) {
+		// Automatically retrieve subjects linked to the provided faculty IDs
+		if(isset($faculty_id) && is_array($faculty_id)) {
 			$subject_ids = [];
-			foreach($teacher_id as $tid) {
-				// Fetch subjects for each teacher from the subject_teacher table
-				$subjects_query = $this->db->query("SELECT subject_id FROM subject_teacher WHERE faculty_id = $tid");
+			foreach($faculty_id as $fid) {
+				// Fetch subjects for each faculty from the subject_teacher table
+				$subjects_query = $this->db->query("SELECT subject_id FROM subject_teacher WHERE faculty_id = $fid");
 				while ($row = $subjects_query->fetch_assoc()) {
 					$subject_ids[] = $row['subject_id'];
 				}
@@ -392,7 +392,6 @@ function login(){
 		}
 		return 0; // Error saving data
 	}
-	
 	
 	function save_subject_teacher() {
 		extract($_POST);
@@ -574,24 +573,35 @@ function login(){
 			if(!in_array($k, array('id','user_ids')) && !is_numeric($k)){
 				if(empty($data)){
 					$data .= " $k='$v' ";
-				}else{
+				} else {
 					$data .= ", $k='$v' ";
 				}
 			}
 		}
-		
+	
+		// Determine the next id if inserting a new record
 		if(empty($id)){
-			$lastOrder= $this->db->query("SELECT * FROM question_list where academic_id = $academic_id order by abs(order_by) desc limit 1");
+			$result = $this->db->query("SELECT IFNULL(MAX(id), 0) + 1 AS next_id FROM question_list");
+			$next_id = $result->fetch_assoc()['next_id'];
+	
+			$lastOrder = $this->db->query("SELECT * FROM question_list WHERE academic_id = $academic_id ORDER BY ABS(order_by) DESC LIMIT 1");
 			$lastOrder = $lastOrder->num_rows > 0 ? $lastOrder->fetch_array()['order_by'] + 1 : 0;
-			$data .= ", order_by='$lastOrder' ";
-			$save = $this->db->query("INSERT INTO question_list set $data");
-		}else{
-			$save = $this->db->query("UPDATE question_list set $data where id = $id");
+	
+			// Set next_id and order_by
+			$data .= ", id='$next_id', order_by='$lastOrder' ";
+			
+			// Insert a new record
+			$save = $this->db->query("INSERT INTO question_list SET $data");
+		} else {
+			// Update an existing record
+			$save = $this->db->query("UPDATE question_list SET $data WHERE id = $id");
 		}
+	
 		if($save){
 			return 1;
 		}
 	}
+	
 	function delete_question(){
 		extract($_POST);
 		$delete = $this->db->query("DELETE FROM question_list where id = $id");
@@ -841,55 +851,58 @@ function delete_subject_restriction() {
 
 
 
-	function save_evaluation() {
-		extract($_POST);
-		
-		// Check for duplicate evaluation based on class_id, subject_id, and faculty_id,
-		// allowing duplicates but excluding the current evaluation_id
-		$check = $this->db->query("SELECT * FROM evaluation_list WHERE class_id = '$class_id' AND subject_id = '$subject_id' AND faculty_id = '$faculty_id'")->num_rows;
-		
-		// No need to return duplicate check result, as duplicates are allowed
-	
-		// Fetch the next evaluation_id based on the maximum evaluation_id in the evaluation_list table
-		$result = $this->db->query("SELECT IFNULL(MAX(evaluation_id), 0) + 1 AS next_id FROM evaluation_list");
-		$next_id = $result->fetch_assoc()['next_id'];
-	
-		// Prepare data to insert into evaluation_list
-		$data = "evaluation_id = $next_id, "; // Use the next evaluation_id
-		$data .= "student_id = {$_SESSION['login_id']}, ";
-		$data .= "academic_id = $academic_id, ";
-		$data .= "subject_id = $subject_id, ";
-		$data .= "class_id = $class_id, ";
-		$data .= "restriction_id = $restriction_id, ";
-		$data .= "faculty_id = $faculty_id, ";
-		$data .= "status = 'pending'"; // Add status as 'pending'
-	
-		// Insert evaluation into evaluation_list
-		$save = $this->db->query("INSERT INTO evaluation_list SET $data");
-	
-		// Check if save was successful
-		if ($save) {
-			$eid = $next_id; // Use the next evaluation_id as the inserted evaluation ID
-	
-			// Insert answers into evaluation_answers table
-			foreach ($qid as $k => $v) {
-				$answer_data = "evaluation_id = $eid, ";
-				$answer_data .= "question_id = $v, ";
-				$answer_data .= "rate = {$rate[$v]}";
-	
-				$ins[] = $this->db->query("INSERT INTO evaluation_answers SET $answer_data");
-			}
-	
-			// Check if answers were inserted successfully
-			if (isset($ins)) {
-				return 1; // Success
-			} else {
-				return 0; // Failed to insert answers
-			}
-		} else {
-			return 0; // Failed to insert evaluation
-		}
-	}
+function save_evaluation() {
+    extract($_POST);
+
+    // Check for duplicate evaluation based on student_id, subject_id, and faculty_id
+    $duplicate_check = $this->db->query("SELECT * FROM evaluation_list WHERE student_id = '{$_SESSION['login_id']}' AND subject_id = '$subject_id' AND faculty_id = '$faculty_id'");
+    
+    // If a duplicate exists, return 0 to indicate failure
+    if ($duplicate_check->num_rows > 0) {
+        return 0; // Duplicate entry, restrict insertion
+    }
+
+    // Fetch the next evaluation_id based on the maximum evaluation_id in the evaluation_list table
+    $result = $this->db->query("SELECT IFNULL(MAX(evaluation_id), 0) + 1 AS next_id FROM evaluation_list");
+    $next_id = $result->fetch_assoc()['next_id'];
+
+    // Prepare data to insert into evaluation_list
+    $data = "evaluation_id = $next_id, "; // Use the next evaluation_id
+    $data .= "student_id = {$_SESSION['login_id']}, ";
+    $data .= "academic_id = $academic_id, ";
+    $data .= "subject_id = $subject_id, ";
+    $data .= "class_id = $class_id, ";
+    $data .= "restriction_id = $restriction_id, ";
+    $data .= "faculty_id = $faculty_id, ";
+    $data .= "status = 'pending'"; // Add status as 'pending'
+
+    // Insert evaluation into evaluation_list
+    $save = $this->db->query("INSERT INTO evaluation_list SET $data");
+
+    // Check if save was successful
+    if ($save) {
+        $eid = $next_id; // Use the next evaluation_id as the inserted evaluation ID
+
+        // Insert answers into evaluation_answers table
+        foreach ($qid as $k => $v) {
+            $answer_data = "evaluation_id = $eid, ";
+            $answer_data .= "question_id = $v, ";
+            $answer_data .= "rate = {$rate[$v]}";
+
+            $ins[] = $this->db->query("INSERT INTO evaluation_answers SET $answer_data");
+        }
+
+        // Check if answers were inserted successfully
+        if (isset($ins)) {
+            return 1; // Success
+        } else {
+            return 0; // Failed to insert answers
+        }
+    } else {
+        return 0; // Failed to insert evaluation
+    }
+}
+
 	
 	
 	

@@ -85,38 +85,35 @@ $restriction = $conn->query("SELECT r.id, s.id as sid, f.id as fid, concat(f.fir
     color: #fff;
 }
 
-
 </style>
 
 <div class="col-lg-12">
     <div class="row">
-      <div class="col-md-3">
-    <div class="list-group">
-        <?php 
-        $displayed_ids = []; // Array to track displayed IDs
-        while ($row = $restriction->fetch_array()):
-            // Remove the automatic selection code
-            if (!in_array($row['id'], $displayed_ids)) { // Check if ID has already been displayed
-                $displayed_ids[] = $row['id']; // Add ID to the array
-        ?>
-        <a class="list-group-item list-group-item-action <?php echo isset($rid) && $rid == $row['id'] ? 'active' : '' ?>" 
-            href="./index.php?page=evaluate&rid=<?php echo $row['id'] ?>&sid=<?php echo $row['sid'] ?>&fid=<?php echo $row['fid'] ?>"
-            <?php echo $row['evaluation_id'] ? 'style="pointer-events: none;"' : ''; ?>>
-            <?php echo ucwords($row['faculty']) . ' - (' . $row["code"] . ') ' . $row['subject'] ?>
-            <?php if ($row['evaluation_id']): ?>
-                <span class="badge badge-success evaluated">
-                    <i class="fa fa-check"></i> Done
-                </span>
-            <?php else: ?>
-                <span class="badge badge-warning">Not Evaluated</span>
-            <?php endif; ?>
-        </a>
-
-        <?php 
-            } // End of ID check
-        endwhile; ?>
-    </div>
-</div>
+        <div class="col-md-3">
+            <div class="list-group">
+                <?php 
+                $displayed_ids = []; // Array to track displayed IDs
+                while ($row = $restriction->fetch_array()):
+                    if (!in_array($row['id'], $displayed_ids)) { // Check if ID has already been displayed
+                        $displayed_ids[] = $row['id']; // Add ID to the array
+                ?>
+                <a class="list-group-item list-group-item-action <?php echo isset($rid) && $rid == $row['id'] ? 'active' : '' ?>" 
+                    href="./index.php?page=evaluate&rid=<?php echo $row['id'] ?>&sid=<?php echo $row['sid'] ?>&fid=<?php echo $row['fid'] ?>"
+                    <?php echo $row['evaluation_id'] ? 'style="pointer-events: none;"' : ''; ?>>
+                    <?php echo ucwords($row['faculty']) . ' - (' . $row["code"] . ') ' . $row['subject'] ?>
+                    <?php if ($row['evaluation_id']): ?>
+                        <span class="badge badge-success evaluated">
+                            <i class="fa fa-check"></i> Done
+                        </span>
+                    <?php else: ?>
+                        <span class="badge badge-warning">Not Evaluated</span>
+                    <?php endif; ?>
+                </a>
+                <?php 
+                    } // End of ID check
+                endwhile; ?>
+            </div>
+        </div>
 
         <div class="col-md-9">
             <div class="card card-outline card-info">
@@ -167,8 +164,7 @@ $restriction = $conn->query("SELECT r.id, s.id as sid, f.id as fid, concat(f.fir
                                     $isEvaluated = isset($row['evaluation_id']) && $row['evaluation_id'] > 0;
                                 ?>
                                 <tr class="bg-white">
-                                    <td class="p-1" width="40%">
-                                        <?php echo $row['question'] ?>
+                                    <td class="p-1" width="40%"><?php echo $row['question'] ?>
                                         <input type="hidden" name="qid[]" value="<?php echo $row['id'] ?>">
                                     </td>
                                     <?php for ($c = 1; $c <= 5; $c++): ?>
@@ -193,60 +189,54 @@ $restriction = $conn->query("SELECT r.id, s.id as sid, f.id as fid, concat(f.fir
 
 <script>
     $(document).ready(function() {
-    // Prevent clicking on links if they are evaluated
-    $('.evaluated-link').on('click', function(e) {
-        e.preventDefault(); // Prevent the link from being clicked
-        alert('This evaluation has already been completed.');
-    });
-
-    // Function to check if all questions have been answered
-    function checkFormCompletion() {
-        let allAnswered = true;
-        $('input[type="radio"]').each(function() {
-            const name = $(this).attr('name');
-            if (!$('input[name="' + name + '"]:checked').length) {
-                allAnswered = false;
-                return false; // exit loop if any question is unanswered
-            }
+        $('.evaluated-link').on('click', function(e) {
+            e.preventDefault();
+            alert('This evaluation has already been completed.');
         });
-        // Enable the submit button if all questions are answered
-        $('#submit-evaluation').prop('disabled', !allAnswered);
-    }
 
-    // Event listener for when a radio button is selected
-    $('input[type="radio"]').on('change', checkFormCompletion);
-
-    // Initial check if form is complete
-    checkFormCompletion();
-
-    $('#manage-evaluation').submit(function(e){
-        e.preventDefault();
-        start_load();
-        $.ajax({
-            url: 'ajax.php?action=save_evaluation',
-            method: 'POST',
-            data: $(this).serialize(),
-            success:function(response){
-                end_load();
-                if(response == 1){
-                    alert_toast("Evaluation successfully submitted.", "success");
-                    
-                    // Automatically redirect to the next restriction
-                    setTimeout(function(){
-                        let nextRestriction = $('.list-group-item.active').next('.list-group-item');
-                        if (nextRestriction.length) {
-                            let nextUrl = nextRestriction.attr('href');
-                            window.location.href = nextUrl;
-                        } else {
-                            alert("All evaluations are completed.");
-                        }
-                    }, 1500);
-                } else {
-                    alert_toast("Error saving the evaluation.", "error");
+        function checkFormCompletion() {
+            let allAnswered = true;
+            $('input[type="radio"]').each(function() {
+                const name = $(this).attr('name');
+                if (!$('input[name="' + name + '"]:checked').length) {
+                    allAnswered = false;
+                    return false;
                 }
-            }
+            });
+            $('#submit-evaluation').prop('disabled', !allAnswered);
+        }
+
+        $('input[type="radio"]').on('change', checkFormCompletion);
+        checkFormCompletion();
+
+        $('#manage-evaluation').submit(function(e) {
+            e.preventDefault();
+            start_load();
+            $.ajax({
+                url: 'ajax.php?action=save_evaluation',
+                method: 'POST',
+                data: $(this).serialize(),
+                success: function(response) {
+                    end_load();
+                    if (response == 1) {
+                        alert_toast("Evaluation successfully submitted.", "success");
+                        setTimeout(function() {
+                            let notEvaluatedItems = $('.list-group-item').filter(function() {
+                                return !$(this).find('.badge').hasClass('evaluated');
+                            });
+                            if (notEvaluatedItems.length) {
+                                let randomItem = notEvaluatedItems.eq(Math.floor(Math.random() * notEvaluatedItems.length));
+                                let randomUrl = randomItem.attr('href');
+                                window.location.href = randomUrl;
+                            } else {
+                                alert("All evaluations are completed.");
+                            }
+                        }, 1500);
+                    } else {
+                        alert_toast("Error saving the evaluation.", "error");
+                    }
+                }
+            });
         });
     });
-});
 </script>
-
