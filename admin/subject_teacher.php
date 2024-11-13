@@ -35,7 +35,7 @@ if (!$teachers_qry) {
     <div class="card card-outline card-primary">
         <div class="card-header">
             <a class="btn btn-sm btn-default btn-flat border-primary" href="index.php?page=subject_list">
-                <i class="fa fa-arrow-left"></i> Back to Subjects
+                <i class="fa fa-arrow-left" style="color: #dc143c; font-weight: bold;"> Back to Subjects</i> 
             </a>
             <br>
             <div class="card-tools">

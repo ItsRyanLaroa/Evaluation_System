@@ -37,7 +37,7 @@
 								<button type="button" class="btn btn-danger btn-flat delete_class" data-id="<?php echo $row['id'] ?>">
 									<i class="fas fa-trash"></i>
 								</button>
-								<a class="dropdown-item class_student manage-students-btn" href="index.php?page=students&id=<?php echo $row['id'] ?>"><i class="fa fa-eye"></i></a>
+								<a class="dropdown-item class_student manage-students-btn" href="index.php?page=view_class&id=<?php echo $row['id'] ?>"><i class="fa fa-eye"></i></a>
 							</div>
 						</td>
 					</tr>	

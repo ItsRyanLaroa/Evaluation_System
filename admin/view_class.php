@@ -4,13 +4,13 @@
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $id = intval($_GET['id']); // Convert to integer for safety
 
-    // Modify the query to retrieve all teachers and subjects associated with the class
+    // Retrieve class, teacher(s), and subject(s) information
     $class_qry = $conn->prepare("SELECT c.id as class_id, 
                                         concat(c.curriculum, ' ', c.level, '-', c.section) as class,
                                         c.faculty_id, c.subject_id
                                  FROM class_list c
                                  WHERE c.id = ?");
-    $class_qry->bind_param("i", $id); // Bind the $id parameter
+    $class_qry->bind_param("i", $id);
     $class_qry->execute();
     $result = $class_qry->get_result();
 
@@ -61,25 +61,40 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 <div class="col-lg-12">
     <div class="card card-outline card-success">
         <div class="card-header">
+            <a href="index.php?page=class_list" class="btn-back">
+                <i class="fa fa-arrow-left"></i> Back
+            </a>
             <div class="card-tools">
                 <a class="btn btn-block btn-sm btn-default btn-flat border-primary new_class" href="javascript:void(0)" data-id="<?php echo $class_id; ?>">
                     <i class="fa fa-plus"></i> <span style="color: #dc143c; font-weight: bold;">Add New</span>
                 </a>
             </div>
-            <a href="index.php?page=class_list" class="btn-back">
-                <i class="fa fa-arrow-left"></i> Back
-            </a>
-            
-            <div class="class-details mt-3">
-                <span class="class-name" style="font-size: 24px;">Class: <?php echo $class_name; ?></span>
-                <span class="class-code" style="font-size: 24px;">| Class ID: <?php echo $class_id; ?></span>
-            </div>
-            <div class="teacher-details">
-                <span class="teacher-name" style="font-size: 24px;">Teacher(s): <?php echo implode(', ', $teachers); ?></span>
-                <span class="subject-name" style="font-size: 24px;"> | Subject(s): <span style="color: #dc143c; font-weight: bold; font-size: 24px;"><?php echo implode(', ', $subjects); ?></span>
-            </div>
         </div>
+        <!-- Table for Class, Teacher(s), and Subject(s) -->
         <div class="card-body">
+            <h4>Class Details</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Class</th>
+                  
+                        <th>Teacher(s)</th>
+                        <th>Subject(s)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><?php echo $class_name; ?></td>
+                        <td><?php echo implode(', ', $teachers); ?></td>
+                        <td><?php echo implode(', ', $subjects); ?></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Table for Students in the Class -->
+        <div class="card-body">
+            <h4>Student List</h4>
             <table class="table table-hover table-bordered" id="list">
                 <thead>
                     <tr>
@@ -129,7 +144,15 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 </div>
 
 <style>
-     .btn-back {
+    /* Style for both tables */
+    thead th {
+        background-color: #dc143c; 
+        color: white;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .btn-back {
         background-color: #007bff;
         color: #fff;
         font-size: 16px;
@@ -152,116 +175,8 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
         color: black;
         box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     }
-
-    .class-details, .teacher-details {
-        margin-top: 10px;
-        font-size: 16px;
-    }
-
-    .class-name, .teacher-name {
-        font-weight: bold;
-    }
-
-    .subject-name {
-        color: #666;
-    }
-
-    .card-success.card-outline {
-        border-top: none;
-    }
-
-    .card-tools i{
-        color: #dc143c;
-        font-weight: bold;
-    }
-
-    .table-bordered {
-        border: none;
-    }
-
-    thead th {
-        background-color: #dc143c; 
-        color: white;
-        text-align: center;
-        font-weight: bold;
-    }
-
-    tbody tr:hover {
-        background-color: #95d2ec;
-    }
-    .class-details {
-        display: flex;
-        align-items: center;
-        font-size: 18px;
-    }
-
-    .class-name {
-        font-weight: bold;
-        margin-right: 15px;
-    }
-
-    .class-code {
-        color: #555;
-    }
-
-    .teacher-details {
-        margin-top: 10px;
-        font-size: 16px;
-    }
-
-    .teacher-name {
-        font-weight: bold;
-        color: #333;
-    }
-
-    .subject-name {
-        font-size: 16px;
-        color: #666;
-    }
-
-    .card-success.card-outline {
-        border-top: none;
-    }
-
-    table.table-bordered.dataTable tbody th, 
-    table.table-bordered.dataTable tbody td {
-        border: none;
-        color: #333; 
-        font-weight: 500;
-    }
-
-    table.table-bordered.dataTable {
-        border: none;
-    }
-
-    thead th {
-        background-color: #dc143c;
-        color: white;
-        text-align: center;
-        font-weight: bold;
-    }
-
-    .card-header {
-        background-color: transparent;
-        border-bottom: none;
-    }
-
-    .btn-primary {
-        color: blue;
-        background-color: white;
-        border: none;
-    }
-
-    .btn-danger {
-        color: red;
-        background-color: white;
-        border: none;
-    }
-
-    tbody tr:hover {
-        background-color: #f1f1f1;
-    }
 </style>
+
 
 <script>
     $(document).ready(function(){

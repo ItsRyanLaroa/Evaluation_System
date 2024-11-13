@@ -84,24 +84,12 @@
               <p>Academic Year</p>
             </a>
           </li> 
-          <!-- <li class="nav-item dropdown">
-            <a href="./index.php?page=questionnaire" class="nav-link nav-questionnaire">
-              <i class="nav-icon fas fa-question-circle"></i>
-              <p>Questionnaires</p>
-            </a>
-          </li> -->
           <li class="nav-item dropdown">
             <a href="./index.php?page=category" class="nav-link nav-criteria_list">
               <i class="nav-icon fas fa-tasks"></i>
               <p>Category</p>
             </a>
           </li> 
-          <!-- <li class="nav-item dropdown">
-            <a href="./index.php?page=staff_questionnaire" class="nav-link nav-staff_questionnaire">
-              <i class="nav-icon fas fa-user-edit"></i>
-              <p>Staff Questionnaire</p>
-            </a>
-          </li> -->
           <li class="nav-item">
             <a href="#" class="nav-link nav-edit_faculty">
               <i class="nav-icon fas fa-users"></i>
