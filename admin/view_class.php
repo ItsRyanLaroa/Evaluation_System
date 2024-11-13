@@ -61,12 +61,12 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 <div class="col-lg-12">
     <div class="card card-outline card-success">
         <div class="card-header">
-            <a href="index.php?page=class_list" class="btn-back">
-                <i class="fa fa-arrow-left"></i> Back
+            <a href="index.php?page=class_list" >
+                <button class="btn"><i class="fa fa-arrow-left" ><span > Back </span></i></button>  
             </a>
             <div class="card-tools">
                 <a class="btn btn-block btn-sm btn-default btn-flat border-primary new_class" href="javascript:void(0)" data-id="<?php echo $class_id; ?>">
-                    <i class="fa fa-plus"></i> <span style="color: #dc143c; font-weight: bold;">Add New</span>
+                    <i class="fa fa-plus"></i> <span style="color: #dc143c; font-weight: bold; ">Add New</span>
                 </a>
             </div>
         </div>
@@ -77,7 +77,6 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                 <thead>
                     <tr>
                         <th>Class</th>
-                  
                         <th>Teacher(s)</th>
                         <th>Subject(s)</th>
                     </tr>
@@ -92,53 +91,55 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
             </table>
         </div>
 
-        <!-- Table for Students in the Class -->
+        <!-- Table for Students in the Class with Scrollbar -->
         <div class="card-body">
             <h4>Student List</h4>
-            <table class="table table-hover table-bordered" id="list">
-                <thead>
-                    <tr>
-                        <th class="text-center">#</th>
-                        <th>School ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    $i = 1;
-                    $qry = $conn->prepare("SELECT s.*, concat(s.firstname, ' ', s.lastname) as name 
-                                            FROM student_list s 
-                                            INNER JOIN class_list e ON s.class_id = e.id 
-                                            WHERE e.id = ? 
-                                            ORDER BY concat(s.firstname,' ',s.lastname) ASC");
-                    $qry->bind_param("i", $id);
-                    $qry->execute();
-                    $result = $qry->get_result();
+            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;"> <!-- Set max height for scrolling -->
+                <table class="table table-hover table-bordered" id="list">
+                    <thead>
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th>School ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $i = 1;
+                        $qry = $conn->prepare("SELECT s.*, concat(s.firstname, ' ', s.lastname) as name 
+                                                FROM student_list s 
+                                                INNER JOIN class_list e ON s.class_id = e.id 
+                                                WHERE e.id = ? 
+                                                ORDER BY concat(s.firstname,' ',s.lastname) ASC");
+                        $qry->bind_param("i", $id);
+                        $qry->execute();
+                        $result = $qry->get_result();
 
-                    while ($row = $result->fetch_assoc()): ?>
-                    <tr>
-                        <th class="text-center"><?php echo $i++ ?></th>
-                        <td><b><?php echo $row['school_id'] ?></b></td>
-                        <td><b><?php echo ucwords($row['name']) ?></b></td>
-                        <td><b><?php echo $row['email'] ?></b></td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-default btn-sm btn-flat border-info wave-effect text-info dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
-                                Action
-                            </button>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item view_student" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>">View</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="./index.php?page=edit_student&id=<?php echo $row['id'] ?>">Edit</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item delete_student" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>">Delete</a>
-                            </div>
-                        </td>
-                    </tr>  
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
+                        while ($row = $result->fetch_assoc()): ?>
+                        <tr>
+                            <th class="text-center"><?php echo $i++ ?></th>
+                            <td><b><?php echo $row['school_id'] ?></b></td>
+                            <td><b><?php echo ucwords($row['name']) ?></b></td>
+                            <td><b><?php echo $row['email'] ?></b></td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-default btn-sm btn-flat border-info wave-effect text-info dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                                    Action
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item view_student" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>">View</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="./index.php?page=edit_student&id=<?php echo $row['id'] ?>">Edit</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item delete_student" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>">Delete</a>
+                                </div>
+                            </td>
+                        </tr>  
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -146,37 +147,30 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 <style>
     /* Style for both tables */
     thead th {
-        background-color: #dc143c; 
+        background-color:  #9b0a1e; 
         color: white;
         text-align: center;
         font-weight: bold;
     }
 
-    .btn-back {
-        background-color: #007bff;
-        color: #fff;
-        font-size: 16px;
-        padding: 10px 20px;
-        border-radius: 25px;
-        border: none;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        transition: background-color 0.3s, box-shadow 0.3s;
-        margin-bottom: 15px;
+    .btn{
+       color:  #9b0a1e; font-weight: bold;
+       border-color: #9b0a1e !important;
+       font-weight: bold;
+    border-radius: 4px;
     }
 
     .btn-back i {
         margin-right: 8px;
+       
     }
 
     .btn-back:hover {
-        background-color: #dc143c;
+        background-color:  #9b0a1e;
         color: black;
         box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     }
 </style>
-
 
 <script>
     $(document).ready(function(){

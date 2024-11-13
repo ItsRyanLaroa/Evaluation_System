@@ -55,17 +55,17 @@ if (isset($_FILES['excel_file'])) {
         $conn->close();
 
         // Redirect the user to the students page for the specific class
-        header('Location: ../index.php?page=students&id=' . $class_id);
+        header('Location: ../index.php?page=view_class&id=' . $class_id);
         exit;
     } else {
         // Handle file upload error and redirect with error message
         $class_id = isset($_POST['class_id']) ? $_POST['class_id'] : '';
-        header('Location: ../index.php?page=students&id=' . $class_id . '&error=upload_error');
+        header('Location: ../index.php?page=view_class&id=' . $class_id . '&error=upload_error');
         exit;
     }
 } else {
     // Handle missing file and redirect with error message
-    header('Location: ../index.php?page=students&error=file_missing');
+    header('Location: ../index.php?page=view_class&error=file_missing');
     exit;
 }
 ?>

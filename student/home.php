@@ -91,18 +91,48 @@ h3{
         </div>
     </div>
 </div>
+<?php
+// Assuming $_SESSION['login_id'] holds the ID of the logged-in student
+$login_id = $_SESSION['login_id'];
 
-  <div class="col-12 col-sm-6 col-md-4">
-    <div class="small-box bg-light shadow-sm border">
-      <div class="inner">
-        <h3><?php echo $conn->query("SELECT * FROM student_list")->num_rows; ?></h3> <!-- Total Students -->
-        <p>Total Students</p>
-      </div>
-      <div class="icon">
-      <i class="fa fa-users"></i>
-      </div>
+// Step 1: Retrieve the class_id for the logged-in student
+$class_id_query = "SELECT class_id FROM student_list WHERE id = ?";
+$stmt = $conn->prepare($class_id_query);
+$stmt->bind_param("i", $login_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
+
+// Check if class_id was found
+if ($row) {
+    $class_id = $row['class_id'];
+
+    // Step 2: Count the total number of students in the same class
+    $total_students_by_class_query = "SELECT COUNT(*) AS total_students FROM student_list WHERE class_id = ?";
+    $stmt = $conn->prepare($total_students_by_class_query);
+    $stmt->bind_param("i", $class_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+
+    $total_students = $row['total_students'];
+} else {
+    $total_students = 0; // In case no class_id is found
+}
+?>
+
+<div class="col-12 col-sm-6 col-md-4">
+  <div class="small-box bg-light shadow-sm border">
+    <div class="inner">
+      <h3><?php echo $total_students; ?></h3>
+      <p>Total Students in Your Class</p>
+    </div>
+    <div class="icon">
+      <i class="fa fa-user-graduate"></i> <!-- Icon for class students -->
     </div>
   </div>
+</div>
+
   <div class="col-12 col-sm-6 col-md-4">
     <div class="small-box bg-light shadow-sm border">
       <div class="inner">

@@ -86,17 +86,38 @@ $astat = array("Not Yet Started","On-going","Closed");
       </div>
     </div>
   </div>
-  <div class="col-12 col-sm-6 col-md-4">
-    <div class="small-box bg-light shadow-sm border">
-      <div class="inner">
-        <h3><?php echo $conn->query("SELECT * FROM student_list")->num_rows; ?></h3>
-        <p>Total Students</p>
-      </div>
-      <div class="icon">
-        <i class="fa fa-users"></i>
-      </div>
-    </div>
-  </div>
+          <?php
+        // Retrieve faculty_id from the session
+        $faculty_id = $_SESSION['login_id'];
+
+        // Query to count students associated with the faculty
+        $total_students_query = "
+            SELECT COUNT(DISTINCT s.id) AS total_students
+            FROM class_list c
+            JOIN student_list s ON c.id = s.class_id
+            WHERE FIND_IN_SET(?, c.faculty_id) > 0"; // Use FIND_IN_SET to match faculty_id within a comma-separated list
+
+        $stmt = $conn->prepare($total_students_query);
+        $stmt->bind_param("s", $faculty_id); // Bind as string since faculty_id is varchar
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        $total_students = $row['total_students'];
+        ?>
+
+        <!-- Display the total students in a card -->
+        <div class="col-12 col-sm-6 col-md-4">
+          <div class="small-box bg-light shadow-sm border">
+            <div class="inner">
+              <h3><?php echo $total_students; ?></h3>
+              <p>Total Students for Your Classes</p>
+            </div>
+            <div class="icon">
+              <i class="fa fa-user-graduate"></i> <!-- Icon for class students -->
+            </div>
+          </div>
+        </div>
+
   <div class="col-12 col-sm-6 col-md-4">
     <div class="small-box bg-light shadow-sm border">
       <div class="inner">

@@ -120,7 +120,7 @@ $restriction = $conn->query("SELECT r.id, s.id as sid, f.id as fid, concat(f.fir
                 <div class="card-header">
                     <b>Evaluation Questionnaire for Academic: <?php echo $_SESSION['academic']['year'] . ' ' . (ordinal_suffix($_SESSION['academic']['semester'])) ?></b>
                     <div class="card-tools">
-                        <button class="btn btn-sm btn-flat btn-primary bg-gradient-primary mx-1" form="manage-evaluation" id="submit-evaluation" disabled>Submit Evaluation</button>
+                      
                     </div>
                 </div>
                 <div class="card-body">
@@ -128,6 +128,7 @@ $restriction = $conn->query("SELECT r.id, s.id as sid, f.id as fid, concat(f.fir
                         <legend class="w-auto">Rating Legend</legend>
                         <p>5 = Strongly Agree, 4 = Agree, 3 = Uncertain, 2 = Disagree, 1 = Strongly Disagree</p>
                     </fieldset>
+              <!-- Additional code for Student Feedback Text Area -->
                     <form id="manage-evaluation">
                         <input type="hidden" name="class_id" value="<?php echo $_SESSION['login_class_id'] ?>">
                         <input type="hidden" name="faculty_id" value="<?php echo $faculty_id ?>">
@@ -135,7 +136,9 @@ $restriction = $conn->query("SELECT r.id, s.id as sid, f.id as fid, concat(f.fir
                         <input type="hidden" name="subject_id" value="<?php echo $subject_id ?>">
                         <input type="hidden" name="academic_id" value="<?php echo $_SESSION['academic']['id'] ?>">
                         <div class="clear-fix mt-2"></div>
+
                         <?php 
+                        // Existing loop for criteria and questions
                         $q_arr = array();
                         $criteria = $conn->query("SELECT * FROM criteria_list WHERE id IN 
                             (SELECT criteria_id FROM question_list WHERE academic_id = {$_SESSION['academic']['id']}) 
@@ -180,7 +183,20 @@ $restriction = $conn->query("SELECT r.id, s.id as sid, f.id as fid, concat(f.fir
                             </tbody>
                         </table>
                         <?php endwhile; ?>
-                    </form>
+
+                    <!-- Student Feedback Section -->
+                    <fieldset class="border border-info p-2 w-100 mt-4">
+                        <legend class="w-auto">Additional Feedback</legend>
+                        <p>Please provide any additional comments or feedback here:</p>
+                        <textarea name="feedback" class="form-control" rows="4" placeholder="Enter your feedback here..."></textarea>
+                    </fieldset>
+
+                    <!-- Submit Button -->
+                    <div class="card-tools mt-3">
+                        <button class="btn btn-sm btn-flat btn-primary bg-gradient-primary mx-1" form="manage-evaluation" id="submit-evaluation" disabled>Submit Evaluation</button>
+                    </div>
+                </form>
+
                 </div>
             </div>
         </div>

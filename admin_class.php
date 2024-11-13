@@ -872,7 +872,7 @@ function save_evaluation() {
     $result = $this->db->query("SELECT IFNULL(MAX(evaluation_id), 0) + 1 AS next_id FROM evaluation_list");
     $next_id = $result->fetch_assoc()['next_id'];
 
-    // Prepare data to insert into evaluation_list
+    // Prepare data to insert into evaluation_list without feedback
     $data = "evaluation_id = $next_id, "; // Use the next evaluation_id
     $data .= "student_id = {$_SESSION['login_id']}, ";
     $data .= "academic_id = $academic_id, ";
@@ -880,7 +880,7 @@ function save_evaluation() {
     $data .= "class_id = $class_id, ";
     $data .= "restriction_id = $restriction_id, ";
     $data .= "faculty_id = $faculty_id, ";
-    $data .= "status = 'pending'"; // Add status as 'pending'
+    $data .= "status = 'pending'"; // No feedback here
 
     // Insert evaluation into evaluation_list
     $save = $this->db->query("INSERT INTO evaluation_list SET $data");
@@ -889,11 +889,12 @@ function save_evaluation() {
     if ($save) {
         $eid = $next_id; // Use the next evaluation_id as the inserted evaluation ID
 
-        // Insert answers into evaluation_answers table
+        // Insert answers into evaluation_answers table, including feedback for each answer
         foreach ($qid as $k => $v) {
             $answer_data = "evaluation_id = $eid, ";
             $answer_data .= "question_id = $v, ";
-            $answer_data .= "rate = {$rate[$v]}";
+            $answer_data .= "rate = {$rate[$v]}, ";
+            $answer_data .= "feedback = '" . $this->db->real_escape_string($feedback) . "'"; // Add feedback here
 
             $ins[] = $this->db->query("INSERT INTO evaluation_answers SET $answer_data");
         }
@@ -909,7 +910,6 @@ function save_evaluation() {
     }
 }
 
-	
 	
 	
 	function get_class(){
