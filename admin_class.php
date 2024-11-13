@@ -26,7 +26,7 @@ function login(){
     $qry_faculty = $this->db->query("SELECT *, concat(firstname,' ',lastname) as name FROM faculty_list WHERE email = '".$email."' AND password = '".md5($password)."'");
 
     // Query for student (using school_id as username) and active status
-    $qry_student = $this->db->query("SELECT *, concat(firstname,' ',lastname) as name FROM student_list WHERE school_id = '".$email."' AND password = '".md5($password)."'");
+    $qry_student = $this->db->query("SELECT *, concat(firstname,' ',lastname) as name FROM student_list WHERE school_id = '".$email."' AND password = '".md5($password)."' AND status = 'active'");
 
     // Check for admin login (still using email)
     if($qry_admin->num_rows > 0){
@@ -40,7 +40,7 @@ function login(){
         $login_type = 2; // Faculty
         $view_folder = 'faculty/';
     }
-    // Check for student login (using school_id instead of email)
+    // Check for student login (using school_id and active status)
     elseif($qry_student->num_rows > 0){
         $qry = $qry_student;
         $login_type = 3; // Student
@@ -70,7 +70,6 @@ function login(){
     }
     return 1; // Login successful
 }
-
 
 	function logout(){
 		session_destroy();
